@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aromara - Indonesian Fragrance Supplier Platform
 
-## Getting Started
+Platform untuk menghubungkan supplier fragrance Indonesia dengan buyer lokal dan internasional.
 
-First, run the development server:
+## 🚀 Quick Start
 
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Setup Environment Variables
+Buat file `.env.local` di root folder:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Run Development Server
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Buka [http://localhost:3000](http://localhost:3000) di browser.
 
-## Learn More
+## 📱 Available Pages
 
-To learn more about Next.js, take a look at the following resources:
+### Public Pages
+- **Homepage**: `http://localhost:3000`
+- **Supplier Directory**: `http://localhost:3000/suppliers`
+- **Login**: `http://localhost:3000/login`
+- **Register**: `http://localhost:3000/register`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Dashboard Pages (After Login)
+- **User Dashboard**: `http://localhost:3000/user/dashboard`
+- **Supplier Dashboard**: `http://localhost:3000/supplier/dashboard`
+- **Admin Dashboard**: `http://localhost:3000/admin/dashboard`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎨 Design System
 
-## Deploy on Vercel
+### Colors
+- **Primary**: #252F24 (Dark Green)
+- **Secondary**: #E1F0C9 (Light Green)
+- **Background**: #FFFFFF (White)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Components
+Kami menggunakan **shadcn/ui** untuk komponen UI yang konsisten dan reusable.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Komponen yang tersedia:
+- Button
+- Card
+- Input
+- Badge
+
+## 🏗️ Project Structure
+
+Lihat [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) untuk detail struktur folder.
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Styling**: Tailwind CSS v4
+- **UI Components**: shadcn/ui
+- **Backend**: Supabase (planned)
+- **Icons**: Lucide React
+- **Language**: TypeScript
+
+## 📝 Features
+
+### Implemented ✅
+- [x] Homepage dengan hero section
+- [x] Supplier directory dengan search & filter
+- [x] Login & Register pages
+- [x] Dashboard untuk User, Supplier, dan Admin
+- [x] Responsive design
+- [x] Clean component architecture
+
+### Coming Soon 🚧
+- [ ] Supabase authentication integration
+- [ ] Database schema & API
+- [ ] Protected routes
+- [ ] Product CRUD operations
+- [ ] Quotation request system
+- [ ] File upload
+- [ ] Email notifications
+
+## 🔐 User Roles
+
+1. **User/Buyer**
+   - Browse suppliers
+   - Request quotations
+   - Manage orders
+
+2. **Supplier**
+   - Manage products
+   - Respond to quotations
+   - View analytics
+
+3. **Admin**
+   - Verify suppliers
+   - Manage users
+   - Platform settings
+
+## 📚 Documentation
+
+- [Project Structure](./PROJECT_STRUCTURE.md)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [shadcn/ui Documentation](https://ui.shadcn.com)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+
+## 🤝 Contributing
+
+Untuk development:
+1. Clone repository
+2. Install dependencies: `npm install`
+3. Buat branch baru: `git checkout -b feature/nama-fitur`
+4. Commit changes: `git commit -m "Add feature"`
+5. Push ke branch: `git push origin feature/nama-fitur`
+
+## 📄 License
+
+© 2025 Aromara. All rights reserved.
+
+---
+
+Developed with ❤️ for Indonesian Fragrance Industry
+
