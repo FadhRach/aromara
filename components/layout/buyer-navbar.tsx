@@ -80,7 +80,7 @@ export default function BuyerNavbar() {
                             Explor Suplier
                         </Link>
                         <Link
-                            href="/explore-suppliers"
+                            href="/request-quote"
                             className="text-sm font-medium text-[#252F24] hover:text-[#252F24]/70 transition"
                         >
                             Ajukan Permintaan
@@ -252,7 +252,7 @@ export default function BuyerNavbar() {
                                 Explor Suplier
                             </Link>
                             <Link
-                                href="/explore-suppliers"
+                                href="/request-quote"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="px-4 py-2.5 text-sm font-medium text-[#252F24] hover:bg-[#E8F5E9] rounded-lg transition"
                             >

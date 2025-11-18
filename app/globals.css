@@ -47,12 +47,16 @@
   --radius: 0.625rem;
   
   /* Custom Aromara Colors */
+  --aromara-primary: #252F24;
+  --aromara-secondary: #E1F0C9;
+  --aromara-white: #FAFAEE;
+  
   --primary: #252F24;
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #FAFAEE;
   --secondary: #E1F0C9;
   --secondary-foreground: #252F24;
   
-  --background: #FFFFFF;
+  --background: #FAFAEE;
   --foreground: #252F24;
   --card: #FFFFFF;
   --card-foreground: #252F24;

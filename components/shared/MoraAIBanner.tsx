@@ -18,13 +18,13 @@ export default function MoraAIBanner() {
 
     const closeBanner = () => {
         setShowBanner(false);
-        window.scrollTo({ top: 100, behavior: 'smooth' });
+        window.scrollTo({ top: 50, behavior: 'smooth' });
     };
 
     if (!showBanner) return null;
 
     return (
-        <div className="fixed top-[72px] md:top-[76px] left-0 right-0 z-40 bg-[#E8F5E9] py-2.5 px-4 md:px-6 border-b border-[#252F24]/5 transition-all duration-300">
+        <div className="fixed top-[72px] md:top-[76px] left-0 right-0 z-40 bg-[#E1F0C9] py-2.5 px-4 md:px-6 border-b border-[#252F24]/5 transition-all duration-300">
             <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                 <p className="text-sm text-[#252F24] flex-1">
                     Butuh rekomendasi? Biarkan <span className="font-semibold">MORA AI</span> membantu Anda menemukan jawabannya.

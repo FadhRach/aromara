@@ -1,125 +1,125 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import MoraAI from "@/components/shared/MoraAI";
+import Link from "next/link";
 
 export default function MoraAIPage() {
-  const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([
-    {
-      role: "assistant",
-      content: "Halo! Saya MORA AI, asisten virtual Aromara. Ada yang bisa saya bantu hari ini? Saya dapat membantu Anda menemukan supplier, produk, atau menjawab pertanyaan seputar bahan baku aroma."
-    }
-  ]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!question.trim()) return;
-
-    // Add user message
-    const newMessages = [...messages, { role: "user", content: question }];
-    setMessages(newMessages);
-    setQuestion("");
-
-    // TODO: Implement actual AI response
-    // For now, just add a placeholder response
-    setTimeout(() => {
-      setMessages([
-        ...newMessages,
-        {
-          role: "assistant",
-          content: "Terima kasih atas pertanyaan Anda. Fitur MORA AI sedang dalam pengembangan dan akan segera tersedia. Untuk sementara, Anda dapat menjelajahi supplier dan produk kami di halaman Explore Suppliers."
-        }
-      ]);
-    }, 1000);
-  };
-
   return (
-    <div className="min-h-screen bg-[#FAFAEE] pt-32 pb-16">
-      <div className="max-w-4xl mx-auto px-4 md:px-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-[#252F24] mb-3">
-            MORA AI Assistant
-          </h1>
-          <p className="text-[#252F24]/70">
-            Tanyakan apapun tentang supplier, produk, atau bahan baku aroma
-          </p>
+    <div className="min-h-screen bg-[#FAFAEE] pt-28 md:pt-32 pb-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <Link 
+            href="/"
+            className="text-sm text-[#252F24]/70 hover:text-[#252F24] flex items-center gap-2 mb-4"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Kembali ke Beranda
+          </Link>
+          
+          <div className="flex items-center gap-3 mb-2">
+            <div className="bg-[#E1F0C9] p-2 rounded-lg">
+              <svg className="w-6 h-6 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-[#252F24]">
+                MORA AI Assistant
+              </h1>
+              <p className="text-[#252F24]/70 text-sm">
+                Asisten pintar untuk rekomendasi bahan parfum & essential oil
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Chat Container */}
-        <Card className="bg-white border-none shadow-lg mb-6">
-          <CardContent className="p-6">
-            {/* Messages */}
-            <div className="space-y-4 mb-6 max-h-[500px] overflow-y-auto">
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-lg px-4 py-3 ${
-                      message.role === "user"
-                        ? "bg-[#252F24] text-white"
-                        : "bg-[#E8F5E9] text-[#252F24]"
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                  </div>
-                </div>
-              ))}
+        {/* Info Cards */}
+        <div className="grid md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white border-2 border-[#E1F0C9] rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="bg-[#E1F0C9] p-2 rounded-lg">
+                <svg className="w-5 h-5 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-bold text-[#252F24] mb-1">Respons Cepat</h3>
+                <p className="text-sm text-[#252F24]/70">
+                  Dapatkan rekomendasi dalam hitungan detik
+                </p>
+              </div>
             </div>
+          </div>
 
-            {/* Input Form */}
-            <form onSubmit={handleSubmit} className="flex gap-3">
-              <input
-                type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Ketik pertanyaan Anda di sini..."
-                className="flex-1 px-4 py-3 bg-[#FAFAEE] border border-[#252F24]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#252F24]/20"
-              />
-              <Button
-                type="submit"
-                className="bg-[#252F24] hover:bg-[#252F24]/90 text-white px-6"
-              >
-                Kirim
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+          <div className="bg-white border-2 border-[#E1F0C9] rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="bg-[#E1F0C9] p-2 rounded-lg">
+                <svg className="w-5 h-5 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-bold text-[#252F24] mb-1">Akurat & Relevan</h3>
+                <p className="text-sm text-[#252F24]/70">
+                  Rekomendasi berdasarkan data terpercaya
+                </p>
+              </div>
+            </div>
+          </div>
 
-        {/* Quick Questions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="bg-[#E8F5E9] border-none hover:shadow-md transition cursor-pointer">
-            <CardContent className="p-4">
+          <div className="bg-white border-2 border-[#E1F0C9] rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="bg-[#E1F0C9] p-2 rounded-lg">
+                <svg className="w-5 h-5 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-bold text-[#252F24] mb-1">Produk Tersedia</h3>
+                <p className="text-sm text-[#252F24]/70">
+                  Langsung terhubung dengan supplier
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* MORA AI Component */}
+        <MoraAI />
+
+        {/* Example Questions */}
+        <div className="mt-6 bg-white border-2 border-[#E1F0C9] rounded-xl p-6">
+          <h3 className="font-bold text-[#252F24] mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Contoh Pertanyaan
+          </h3>
+          <div className="grid md:grid-cols-2 gap-3">
+            <div className="p-3 bg-[#FAFAEE] rounded-lg border border-[#252F24]/10">
               <p className="text-sm text-[#252F24]">
-                💡 Rekomendasi supplier untuk minyak lavender?
+                � "Saya ingin membuat parfum dengan aroma vanilla yang hangat dan manis"
               </p>
-            </CardContent>
-          </Card>
-          <Card className="bg-[#E8F5E9] border-none hover:shadow-md transition cursor-pointer">
-            <CardContent className="p-4">
+            </div>
+            <div className="p-3 bg-[#FAFAEE] rounded-lg border border-[#252F24]/10">
               <p className="text-sm text-[#252F24]">
-                💡 Apa perbedaan COA dan MSDS?
+                🌸 "Bahan apa yang cocok untuk parfum beraroma floral segar?"
               </p>
-            </CardContent>
-          </Card>
-          <Card className="bg-[#E8F5E9] border-none hover:shadow-md transition cursor-pointer">
-            <CardContent className="p-4">
+            </div>
+            <div className="p-3 bg-[#FAFAEE] rounded-lg border border-[#252F24]/10">
               <p className="text-sm text-[#252F24]">
-                💡 Supplier dengan sertifikasi halal?
+                🌿 "Essential oil apa yang baik untuk aromaterapi relaksasi?"
               </p>
-            </CardContent>
-          </Card>
-          <Card className="bg-[#E8F5E9] border-none hover:shadow-md transition cursor-pointer">
-            <CardContent className="p-4">
+            </div>
+            <div className="p-3 bg-[#FAFAEE] rounded-lg border border-[#252F24]/10">
               <p className="text-sm text-[#252F24]">
-                💡 Berapa harga essential oil jasmine?
+                🍊 "Rekomendasi bahan untuk parfum citrus yang segar"
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

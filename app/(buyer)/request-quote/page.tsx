@@ -1,31 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { supabase } from "@/lib/supabase";
 import MoraAIBanner from "@/components/shared/MoraAIBanner";
 import { showAlert } from "@/lib/sweetalert";
-
-interface Supplier {
-  id: string;
-  name: string;
-  company_description: string;
-  established_year: number;
-  certification_halal: boolean;
-  certification_coa: boolean;
-  certification_msds: boolean;
-  certification_organic: boolean;
-  shipping_coverage: string;
-  city: string;
-  province: string;
-  address: string;
-  total_supply_partners: number;
-  profile_img?: string;
-  company_video_url?: string;
-}
+import { supabase } from "@/lib/supabase";
 
 interface FormData {
   contact_name: string;
@@ -43,13 +25,8 @@ interface FormData {
   attachment_file?: File | null;
 }
 
-export default function ContactSupplierPage() {
-  const params = useParams();
+export default function RequestQuotePage() {
   const router = useRouter();
-  const supplierId = params.id as string;
-  
-  const [supplier, setSupplier] = useState<Supplier | null>(null);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [user, setUser] = useState<any>(null);
   
@@ -82,30 +59,7 @@ export default function ContactSupplierPage() {
         contact_phone: parsedUser.phone || "",
       }));
     }
-    
-    fetchSupplier();
-  }, [supplierId]);
-
-  const fetchSupplier = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("company")
-        .select("*")
-        .eq("id", supplierId)
-        .eq("role", "supplier")
-        .single();
-
-      if (error) throw error;
-      setSupplier(data);
-    } catch (error) {
-      console.error("Error fetching supplier:", error);
-      showAlert.error("Error", "Supplier tidak ditemukan");
-      router.push("/explore-suppliers");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -167,9 +121,24 @@ export default function ContactSupplierPage() {
     setSubmitting(true);
 
     try {
-      // Prepare inquiry data
-      const inquiryData = {
-        supplier_id: supplierId,
+      // Get all active suppliers
+      const { data: suppliers, error: suppliersError } = await supabase
+        .from("company")
+        .select("id")
+        .eq("role", "supplier")
+        .eq("is_active", true);
+
+      if (suppliersError) throw suppliersError;
+
+      if (!suppliers || suppliers.length === 0) {
+        showAlert.warning("Tidak Ada Supplier", "Belum ada supplier aktif di sistem.");
+        setSubmitting(false);
+        return;
+      }
+
+      // Prepare inquiry data for each supplier
+      const inquiries = suppliers.map(supplier => ({
+        supplier_id: supplier.id,
         buyer_id: user?.id || null,
         contact_name: formData.contact_name,
         contact_email: formData.contact_email,
@@ -181,23 +150,22 @@ export default function ContactSupplierPage() {
         total_quantity: formData.total_quantity || null,
         required_certifications: formData.required_certifications.length > 0 ? formData.required_certifications : null,
         packaging_preference: formData.packaging_preference || null,
-        subject: `Permintaan dari ${formData.contact_name}`,
+        subject: `Permintaan RFQ: ${formData.product_or_service}`,
         message: formData.message,
         additional_details: formData.supplier_types.length > 0 ? `Jenis Pemasok: ${formData.supplier_types.join(', ')}` : null,
         status: "pending",
-      };
+      }));
 
-      const { data, error } = await supabase
+      // Insert all inquiries
+      const { error } = await supabase
         .from("inquiry")
-        .insert([inquiryData])
-        .select()
-        .single();
+        .insert(inquiries);
 
       if (error) throw error;
 
       showAlert.success(
         "Permintaan Terkirim!",
-        "Permintaan Anda telah dikirim ke supplier. Mereka akan menghubungi Anda segera."
+        `Permintaan Anda telah dikirim ke ${suppliers.length} supplier. Mereka akan menghubungi Anda segera.`
       );
 
       // Redirect back to explore-suppliers
@@ -213,18 +181,6 @@ export default function ContactSupplierPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#FAFAEE] pt-32 md:pt-36 flex items-center justify-center">
-        <p className="text-[#252F24]">Memuat...</p>
-      </div>
-    );
-  }
-
-  if (!supplier) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-[#FAFAEE] pt-32 md:pt-36 pb-16">
       <MoraAIBanner />
@@ -232,110 +188,19 @@ export default function ContactSupplierPage() {
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         {/* Header */}
         <div className="mb-6">
-          <Link 
-            href="/explore-suppliers"
-            className="text-sm text-[#252F24]/70 hover:text-[#252F24] flex items-center gap-2 mb-4"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Kembali ke Explore Suppliers
-          </Link>
-          
           <h1 className="text-3xl font-bold text-[#252F24] mb-2">
-            Hubungi Suplier
+            Permintaan Stok dan Penawaran Harga
           </h1>
           <p className="text-[#252F24]/70">
-            Buat permintaan Anda dan kami akan memublikasikannya kepada pemasok yang relevan di platform kami.
+            Buat permintaan Anda dan kami akan mempublikasikannya kepada pemasok yang relevan di platform kami.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Sidebar - Supplier Info */}
-          <div className="lg:col-span-4">
-            <div className="lg:sticky lg:top-28 space-y-4">
-              {/* Supplier Card */}
-              <Card className="bg-[#E1F0C9] border-none shadow-sm rounded-xl">
-                <CardContent className="p-5">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-md flex-shrink-0">
-                      <span className="text-2xl font-bold text-[#252F24]">
-                        {supplier.name.charAt(0)}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg text-[#252F24] mb-1">
-                        {supplier.name}
-                      </h3>
-                      <p className="text-sm text-[#252F24]/70">
-                        {supplier.address || `${supplier.city}, ${supplier.province}`}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-[#252F24]/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span className="text-[#252F24]/80">Semenjak {supplier.established_year}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-[#252F24]/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                      </svg>
-                      <span className="text-[#252F24]/80">Pengiriman: {supplier.shipping_coverage}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-[#252F24]/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                      <span className="text-[#252F24]/80">Sertifikasi: {[supplier.certification_halal && 'Halal', supplier.certification_coa && 'COA', supplier.certification_msds && 'MSDS'].filter(Boolean).join(', ')}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-[#252F24]/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                      </svg>
-                      <span className="text-[#252F24]/80">Supply: {supplier.total_supply_partners} Perusahaan</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Company Video */}
-              {supplier.company_video_url && (
-                <Card className="bg-[#E1F0C9] border-none shadow-sm rounded-xl">
-                  <CardContent className="p-4">
-                    <h4 className="font-semibold text-[#252F24] mb-3">Company Video</h4>
-                    <div className="aspect-video bg-[#252F24] rounded-lg flex items-center justify-center">
-                      <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
-
-          {/* Right Content - Form */}
+          {/* Left Content - Form */}
           <div className="lg:col-span-8">
             <Card className="bg-[#E1F0C9] border-none shadow-sm rounded-xl">
               <CardContent className="p-6 md:p-8">
-                <div className="bg-white/60 rounded-lg p-4 mb-6 border-l-4 border-[#252F24]">
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">📧</span>
-                    <div>
-                      <p className="font-semibold text-[#252F24] mb-1">
-                        To: {supplier.name}
-                      </p>
-                      <p className="text-sm text-[#252F24]/70">
-                        Layanan yang dibutuhkan
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Product or Service */}
                   <div>
@@ -464,19 +329,19 @@ export default function ContactSupplierPage() {
                     <label className="block text-sm font-semibold text-[#252F24] mb-3">
                       Sertifikasi yang dibutuhkan
                     </label>
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
                       {[
                         { value: 'halal', label: 'Halal' },
                         { value: 'coa', label: 'COA' },
                         { value: 'msds', label: 'MSDS' },
                         { value: 'organic', label: 'Organik' }
                       ].map((cert) => (
-                        <label key={cert.value} className="flex items-center gap-3 p-3 bg-white rounded-lg cursor-pointer hover:bg-[#252F24]/5 transition">
+                        <label key={cert.value} className="flex items-center gap-2 p-3 bg-white rounded-lg cursor-pointer hover:bg-[#252F24]/5 transition">
                           <input
                             type="checkbox"
                             checked={formData.required_certifications.includes(cert.value)}
                             onChange={() => handleCheckboxChange('required_certifications', cert.value)}
-                            className="w-5 h-5 text-[#252F24] rounded border-[#252F24]/30 focus:ring-[#252F24]"
+                            className="w-4 h-4 text-[#252F24] rounded border-[#252F24]/30 focus:ring-[#252F24]"
                           />
                           <span className="text-sm font-medium text-[#252F24]">{cert.label}</span>
                         </label>
@@ -484,86 +349,7 @@ export default function ContactSupplierPage() {
                     </div>
                   </div>
 
-                  {/* Packaging Preference */}
-                  <div>
-                    <label className="block text-sm font-semibold text-[#252F24] mb-3">
-                      Preferensi Kemasan
-                    </label>
-                    <div className="space-y-2">
-                      {[
-                        { value: 'drum_aluminium', label: 'Drum Aluminium' },
-                        { value: 'karung_jute_bag', label: 'Karung/Jute bag' },
-                        { value: 'vacuum_sealed_bag', label: 'Vacum sealed bag' },
-                        { value: 'no_preference', label: 'Tanpa preferensi' }
-                      ].map((pkg) => (
-                        <label key={pkg.value} className="flex items-center gap-3 p-3 bg-white rounded-lg cursor-pointer hover:bg-[#252F24]/5 transition">
-                          <input
-                            type="radio"
-                            name="packaging_preference"
-                            value={pkg.value}
-                            checked={formData.packaging_preference === pkg.value}
-                            onChange={handleInputChange}
-                            className="w-5 h-5 text-[#252F24] border-[#252F24]/30 focus:ring-[#252F24]"
-                          />
-                          <span className="text-sm font-medium text-[#252F24]">{pkg.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Contact Information */}
-                  <div className="border-t border-[#252F24]/10 pt-6">
-                    <h3 className="font-semibold text-[#252F24] mb-4">Informasi Kontak</h3>
-                    
-                    <div className="grid md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-[#252F24] mb-2">
-                          Nama Lengkap
-                        </label>
-                        <input
-                          type="text"
-                          name="contact_name"
-                          value={formData.contact_name}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 bg-white border border-[#252F24]/20 rounded-lg focus:ring-2 focus:ring-[#252F24] focus:border-transparent"
-                          placeholder="Nama Anda"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-[#252F24] mb-2">
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          name="contact_email"
-                          value={formData.contact_email}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 bg-white border border-[#252F24]/20 rounded-lg focus:ring-2 focus:ring-[#252F24] focus:border-transparent"
-                          placeholder="email@example.com"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-[#252F24] mb-2">
-                        Nomor Telepon
-                      </label>
-                      <input
-                        type="tel"
-                        name="contact_phone"
-                        value={formData.contact_phone}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-white border border-[#252F24]/20 rounded-lg focus:ring-2 focus:ring-[#252F24] focus:border-transparent"
-                        placeholder="+62 812-3456-7890"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* Message */}
+                  {/* Detail Permintaan */}
                   <div>
                     <label className="block text-sm font-semibold text-[#252F24] mb-2">
                       Detail Permintaan
@@ -638,51 +424,59 @@ export default function ContactSupplierPage() {
                 </form>
               </CardContent>
             </Card>
+          </div>
 
-            {/* Info Cards */}
-            <div className="grid md:grid-cols-3 gap-4 mt-6">
-              <Card className="bg-[#252F24] text-white border-none rounded-xl">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-[#E1F0C9] rounded-full flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+          {/* Right Sidebar - Info */}
+          <div className="lg:col-span-4">
+            <Card className="bg-[#252F24] text-white border-none rounded-xl sticky top-28">
+              <CardContent className="p-6">
+                <h3 className="font-bold text-lg mb-4">Bagaimana cara kami bekerja?</h3>
+                
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#E1F0C9] rounded-full flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Sampaikan Detail Kebutuhan</h4>
+                      <p className="text-sm text-white/80">
+                        Semakin jelas permintaanmu, semakin tepat hasil pencocokannya.
+                      </p>
+                    </div>
                   </div>
-                  <h4 className="font-semibold mb-2">Sampaikan Detail Kebutuhan</h4>
-                  <p className="text-sm text-white/80">
-                    Semakin jelas permintaanmu, semakin tepat hasil pencocokannya.
-                  </p>
-                </CardContent>
-              </Card>
 
-              <Card className="bg-[#252F24] text-white border-none rounded-xl">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-[#E1F0C9] rounded-full flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#E1F0C9] rounded-full flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Kami Kirimkan ke Supplier Terverifikasi</h4>
+                      <p className="text-sm text-white/80">
+                        Permintaanmu diproses secara cermat untuk menemukan mitra yang paling sesuai.
+                      </p>
+                    </div>
                   </div>
-                  <h4 className="font-semibold mb-2">Kami Kirimkan ke Supplier Terverifikasi</h4>
-                  <p className="text-sm text-white/80">
-                    Permintaanmu diproses secara cermat untuk menemukan mitra yang paling sesuai.
-                  </p>
-                </CardContent>
-              </Card>
 
-              <Card className="bg-[#252F24] text-white border-none rounded-xl">
-                <CardContent className="p-6 text-center">
-                  <div className="w-12 h-12 bg-[#E1F0C9] rounded-full flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#E1F0C9] rounded-full flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Terhubung dengan Perusahaan yang Tepat</h4>
+                      <p className="text-sm text-white/80">
+                        Dapatkan respons dalam 1 hari kerja dari supplier berkualitas.
+                      </p>
+                    </div>
                   </div>
-                  <h4 className="font-semibold mb-2">Terhubung dengan Perusahaan yang Tepat</h4>
-                  <p className="text-sm text-white/80">
-                    Dapatkan respons dalam 1 hari kerja dari supplier berkualitas.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

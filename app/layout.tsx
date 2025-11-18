@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Lexend } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import ClickSparkProvider from "@/components/providers/ClickSparkProvider";
+import CursorTrail from "@/components/providers/CursorTrail";
 
 const lexend = Lexend({
   variable: "--font-lexend",
@@ -26,6 +28,10 @@ export default function RootLayout({
     <html lang="id">
       <body className={`${lexend.variable} font-lexend antialiased`}>
         {children}
+        
+        {/* Cursor Effects */}
+        <CursorTrail />
+        <ClickSparkProvider />
         
         {/* Ion Icons - Lazy loaded at end of body */}
         <Script
