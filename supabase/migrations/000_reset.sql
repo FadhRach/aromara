@@ -9,14 +9,22 @@ DROP TABLE IF EXISTS company_roles CASCADE;
 DROP TABLE IF EXISTS "order" CASCADE;
 DROP TABLE IF EXISTS inquiry_items CASCADE;
 DROP TABLE IF EXISTS inquiry CASCADE;
+DROP TABLE IF EXISTS product_ingredients CASCADE;
+DROP TABLE IF EXISTS product_images CASCADE;
 DROP TABLE IF EXISTS products CASCADE;
 DROP TABLE IF EXISTS product_categories CASCADE;
+DROP TABLE IF EXISTS supplier_capabilities CASCADE;
+DROP TABLE IF EXISTS supplier_business_types CASCADE;
+DROP TABLE IF EXISTS regions CASCADE;
 DROP TABLE IF EXISTS company CASCADE;
 
 -- Drop types
 DROP TYPE IF EXISTS order_status CASCADE;
 DROP TYPE IF EXISTS inquiry_status CASCADE;
 DROP TYPE IF EXISTS company_role CASCADE;
+DROP TYPE IF EXISTS supplier_business_type CASCADE;
+DROP TYPE IF EXISTS product_stock_status CASCADE;
+DROP TYPE IF EXISTS packaging_type CASCADE;
 
 -- Drop function
 DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;

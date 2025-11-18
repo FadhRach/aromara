@@ -74,6 +74,12 @@ export default function BuyerNavbar() {
                             Home
                         </Link>
                         <Link
+                            href="/explore-products"
+                            className="text-sm font-medium text-[#252F24] hover:text-[#252F24]/70 transition"
+                        >
+                            Explor Produk
+                        </Link>
+                        <Link
                             href="/explore-suppliers"
                             className="text-sm font-medium text-[#252F24] hover:text-[#252F24]/70 transition"
                         >
@@ -243,6 +249,13 @@ export default function BuyerNavbar() {
                                 className="px-4 py-2.5 text-sm font-medium text-[#252F24] hover:bg-[#E8F5E9] rounded-lg transition"
                             >
                                 Home
+                            </Link>
+                            <Link
+                                href="/explore-products"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="px-4 py-2.5 text-sm font-medium text-[#252F24] hover:bg-[#E8F5E9] rounded-lg transition"
+                            >
+                                Explor Produk
                             </Link>
                             <Link
                                 href="/explore-suppliers"
