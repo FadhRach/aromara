@@ -54,23 +54,21 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
         <nav
             className={`fixed top-0 w-full z-50 transition-all duration-300 ${
                 isScrolled
-                    ? "bg-white/90 backdrop-blur-sm"
-                    : "bg-transparent"
+                    ? "bg-[#FAFAEE]/95 backdrop-blur-sm shadow-sm"
+                    : "bg-[#FAFAEE]"
             }`}
         >
-            {/* Top accent bar - only show when not scrolled */}
-            {!isScrolled && <div className="h-6 bg-secondary"></div>}
-            
             <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4">
                 <div className="flex items-center justify-between">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 md:gap-3">
+                    <Link href="/" className="flex items-center gap-2">
                         <Image
                             src="/images/aromaralogo.png"
                             alt="Aromara Logo"
-                            width={120}
-                            height={40}
-                            className="h-8 md:h-10 w-auto object-contain flex-shrink-0"
+                            width={140}
+                            height={45}
+                            className="h-10 md:h-11 w-auto object-contain"
+                            priority
                         />
                     </Link>
 
@@ -78,27 +76,27 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
                     <div className="hidden lg:flex items-center gap-6 xl:gap-8">
                         <Link
                             href="/"
-                            className="text-sm font-medium hover:text-primary transition"
+                            className="text-sm font-medium text-[#252F24] hover:text-[#252F24]/70 transition"
                         >
                             Home
                         </Link>
                         <Link
                             href="/suppliers"
-                            className="text-sm font-medium hover:text-primary transition"
+                            className="text-sm font-medium text-[#252F24] hover:text-[#252F24]/70 transition"
                         >
-                            Explore Suplier
+                            Explor Suplier
                         </Link>
                         <Link
                             href="/quotation"
-                            className="text-sm font-medium hover:text-primary transition"
+                            className="text-sm font-medium text-[#252F24] hover:text-[#252F24]/70 transition"
                         >
-                            Request Quotation
+                            Ajukan Permintaan
                         </Link>
                         <Link
                             href="/about"
-                            className="text-sm font-medium hover:text-primary transition"
+                            className="text-sm font-medium text-[#252F24] hover:text-[#252F24]/70 transition"
                         >
-                            About
+                            Tentang Kami
                         </Link>
                     </div>
 
@@ -106,13 +104,13 @@ export default function Navbar({ variant = "default" }: NavbarProps) {
                     <div className="flex items-center gap-2 md:gap-3">
                         <Button
                             variant="outline"
-                            className="rounded-full text-xs md:text-sm px-3 md:px-4 border-primary/20 hover:bg-primary/5"
+                            className="rounded-full text-xs md:text-sm px-4 md:px-6 py-2 border-[#252F24] text-[#252F24] hover:bg-[#252F24]/5"
                             asChild
                         >
                             <Link href="/login">Log in</Link>
                         </Button>
                         <Button
-                            className="rounded-full bg-primary hover:bg-primary/90 text-xs md:text-sm px-3 md:px-4"
+                            className="rounded-full bg-[#252F24] hover:bg-[#1a2119] text-white text-xs md:text-sm px-4 md:px-6 py-2"
                             asChild
                         >
                             <Link href="/register">Sign up</Link>

@@ -1,92 +1,74 @@
-import { supabase, type User, type Ingredient, type Product, type QuotationRequest, type Review, type ScentPreference } from './supabase'
+import { supabase, type Company, type Product, type Inquiry, type InquiryItem, type ProductCategory } from './supabase'
 
 // =====================================================
-// USER OPERATIONS
+// COMPANY SERVICE
 // =====================================================
 
-export const userService = {
-  // Get user by ID
-  async getById(userId: string) {
+export const companyService = {
+  // Get company by ID
+  async getById(id: string) {
     const { data, error } = await supabase
-      .from('users')
+      .from('company')
       .select('*')
-      .eq('id_user', userId)
+      .eq('id', id)
       .single()
     
     if (error) throw error
-    return data as User
-  },
-
-  // Get user by email
-  async getByEmail(email: string) {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .single()
-    
-    if (error) throw error
-    return data as User
+    return data as Company
   },
 
   // Get all suppliers
   async getSuppliers() {
     const { data, error } = await supabase
-      .from('users')
+      .from('company')
       .select('*')
       .eq('role', 'supplier')
       .eq('is_verified', true)
       .eq('is_active', true)
 
     if (error) throw error
-    return data as User[]
-  },
-}
-
-// =====================================================
-// INGREDIENT OPERATIONS
-// =====================================================
-
-export const ingredientService = {
-  // Get all ingredients
-  async getAll() {
-    const { data, error} = await supabase
-      .from('ingredients')
-      .select('*')
-      .order('name', { ascending: true })
-
-    if (error) throw error
-    return data as Ingredient[]
+    return data as Company[]
   },
 
-  // Get ingredients by type
-  async getByType(type: string) {
+  // Get all buyers
+  async getBuyers() {
     const { data, error } = await supabase
-      .from('ingredients')
+      .from('company')
       .select('*')
-      .eq('type', type)
-      .order('name', { ascending: true })
+      .eq('role', 'buyer')
+      .eq('is_active', true)
 
     if (error) throw error
-    return data as Ingredient[]
+    return data as Company[]
+  },
+
+  // Get all admins
+  async getAdmins() {
+    const { data, error } = await supabase
+      .from('company')
+      .select('*')
+      .eq('role', 'admin')
+      .eq('is_active', true)
+
+    if (error) throw error
+    return data as Company[]
   },
 }
 
 // =====================================================
-// PRODUCT OPERATIONS
+// PRODUCT SERVICE
 // =====================================================
 
 export const productService = {
-  // Get all available products
+  // Get all products with supplier and category info
   async getAll() {
     const { data, error } = await supabase
       .from('products')
       .select(`
         *,
-        ingredient:ingredients(*),
-        supplier:users!products_supplier_id_fkey(*)
+        supplier:company!products_supplier_id_fkey(*),
+        category:product_categories(*)
       `)
-      .eq('is_available', true)
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -94,15 +76,15 @@ export const productService = {
   },
 
   // Get product by ID
-  async getById(productId: string) {
+  async getById(id: string) {
     const { data, error } = await supabase
       .from('products')
       .select(`
         *,
-        ingredient:ingredients(*),
-        supplier:users!products_supplier_id_fkey(*)
+        supplier:company!products_supplier_id_fkey(*),
+        category:product_categories(*)
       `)
-      .eq('id_product', productId)
+      .eq('id', id)
       .single()
 
     if (error) throw error
@@ -115,7 +97,7 @@ export const productService = {
       .from('products')
       .select(`
         *,
-        ingredient:ingredients(*)
+        category:product_categories(*)
       `)
       .eq('supplier_id', supplierId)
       .order('created_at', { ascending: false })
@@ -124,26 +106,40 @@ export const productService = {
     return data
   },
 
-  // Get products by ingredient type
-  async getByIngredientType(ingredientType: string) {
+  // Get products by category
+  async getByCategory(categoryId: string) {
     const { data, error } = await supabase
       .from('products')
       .select(`
         *,
-        ingredient:ingredients(*),
-        supplier:users!products_supplier_id_fkey(*)
+        supplier:company!products_supplier_id_fkey(*),
+        category:product_categories(*)
       `)
-      .eq('is_available', true)
+      .eq('category_id', categoryId)
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    
-    // Filter by ingredient type
-    return data?.filter(p => p.ingredient?.type === ingredientType) || []
+    return data
   },
 
-  // Create product (for supplier)
-  async create(product: Omit<Product, 'id_product' | 'created_at' | 'updated_at'>) {
+  // Search products
+  async search(searchTerm: string) {
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        *,
+        supplier:company!products_supplier_id_fkey(*),
+        category:product_categories(*)
+      `)
+      .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data
+  },
+
+  // Create product (supplier only)
+  async create(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>) {
     const { data, error } = await supabase
       .from('products')
       .insert(product)
@@ -155,11 +151,11 @@ export const productService = {
   },
 
   // Update product
-  async update(productId: string, updates: Partial<Product>) {
+  async update(id: string, updates: Partial<Product>) {
     const { data, error } = await supabase
       .from('products')
       .update(updates)
-      .eq('id_product', productId)
+      .eq('id', id)
       .select()
       .single()
 
@@ -169,51 +165,101 @@ export const productService = {
 }
 
 // =====================================================
-// QUOTATION REQUEST OPERATIONS
+// CATEGORY SERVICE
 // =====================================================
 
-export const quotationService = {
-  // Create quotation request
-  async create(request: Omit<QuotationRequest, 'id_request' | 'request_number' | 'status' | 'created_at' | 'updated_at'>) {
+export const categoryService = {
+  // Get all categories
+  async getAll() {
     const { data, error } = await supabase
-      .from('quotation_requests')
-      .insert(request)
-      .select(`
-        *,
-        product:products(*),
-        consumer:users!quotation_requests_consumer_id_fkey(*),
-        supplier:users!quotation_requests_supplier_id_fkey(*)
-      `)
-      .single()
+      .from('product_categories')
+      .select('*')
+      .order('name', { ascending: true })
 
     if (error) throw error
-    return data
+    return data as ProductCategory[]
+  },
+}
+
+// =====================================================
+// INQUIRY SERVICE (RFQ)
+// =====================================================
+
+export const inquiryService = {
+  // Create inquiry
+  async create(inquiry: {
+    supplier_id: string
+    buyer_id: string
+    subject: string
+    message: string
+    items?: Array<{
+      product_id: string
+      qty: number
+      unit?: string
+      target_price?: number
+    }>
+  }) {
+    // Create inquiry
+    const { data: inquiryData, error: inquiryError } = await supabase
+      .from('inquiry')
+      .insert({
+        supplier_id: inquiry.supplier_id,
+        buyer_id: inquiry.buyer_id,
+        subject: inquiry.subject,
+        message: inquiry.message,
+      })
+      .select()
+      .single()
+
+    if (inquiryError) throw inquiryError
+
+    // Add inquiry items if provided
+    if (inquiry.items && inquiry.items.length > 0) {
+      const itemsToInsert = inquiry.items.map(item => ({
+        inquiry_id: inquiryData.id,
+        ...item,
+      }))
+
+      const { error: itemsError } = await supabase
+        .from('inquiry_items')
+        .insert(itemsToInsert)
+
+      if (itemsError) throw itemsError
+    }
+
+    return inquiryData as Inquiry
   },
 
-  // Get requests for consumer
-  async getByConsumer(consumerId: string) {
+  // Get inquiries for buyer
+  async getByBuyer(buyerId: string) {
     const { data, error } = await supabase
-      .from('quotation_requests')
+      .from('inquiry')
       .select(`
         *,
-        product:products(*),
-        supplier:users!quotation_requests_supplier_id_fkey(*)
+        supplier:company!inquiry_supplier_id_fkey(*),
+        items:inquiry_items(
+          *,
+          product:products(*)
+        )
       `)
-      .eq('consumer_id', consumerId)
+      .eq('buyer_id', buyerId)
       .order('created_at', { ascending: false })
 
     if (error) throw error
     return data
   },
 
-  // Get requests for supplier
+  // Get inquiries for supplier
   async getBySupplier(supplierId: string) {
     const { data, error } = await supabase
-      .from('quotation_requests')
+      .from('inquiry')
       .select(`
         *,
-        product:products(*),
-        consumer:users!quotation_requests_consumer_id_fkey(*)
+        buyer:company!inquiry_buyer_id_fkey(*),
+        items:inquiry_items(
+          *,
+          product:products(*)
+        )
       `)
       .eq('supplier_id', supplierId)
       .order('created_at', { ascending: false })
@@ -222,23 +268,33 @@ export const quotationService = {
     return data
   },
 
-  // Update status (for supplier response)
-  async updateStatus(
-    requestId: string,
-    status: 'accepted' | 'rejected' | 'completed',
-    quoted_price?: number,
-    supplier_notes?: string
-  ) {
+  // Update inquiry status
+  async updateStatus(inquiryId: string, status: 'open' | 'negotiating' | 'closed' | 'ordered') {
     const { data, error } = await supabase
-      .from('quotation_requests')
-      .update({
-        status,
-        quoted_price,
-        supplier_notes,
-        response_date: new Date().toISOString(),
-      })
-      .eq('id_request', requestId)
+      .from('inquiry')
+      .update({ status })
+      .eq('id', inquiryId)
       .select()
+      .single()
+
+    if (error) throw error
+    return data as Inquiry
+  },
+
+  // Get inquiry by ID with all details
+  async getById(inquiryId: string) {
+    const { data, error } = await supabase
+      .from('inquiry')
+      .select(`
+        *,
+        supplier:company!inquiry_supplier_id_fkey(*),
+        buyer:company!inquiry_buyer_id_fkey(*),
+        items:inquiry_items(
+          *,
+          product:products(*)
+        )
+      `)
+      .eq('id', inquiryId)
       .single()
 
     if (error) throw error
@@ -247,110 +303,36 @@ export const quotationService = {
 }
 
 // =====================================================
-// REVIEW OPERATIONS
+// MESSAGE SERVICE
 // =====================================================
 
-export const reviewService = {
-  // Create review
-  async create(review: Omit<Review, 'id_review' | 'created_at'>) {
+export const messageService = {
+  // Send message in inquiry
+  async send(inquiryId: string, senderId: string, body: string) {
     const { data, error } = await supabase
-      .from('reviews')
-      .insert(review)
-      .select()
-      .single()
-
-    if (error) throw error
-    return data as Review
-  },
-
-  // Get reviews for product
-  async getByProduct(productId: string) {
-    const { data, error } = await supabase
-      .from('reviews')
-      .select(`
-        *,
-        consumer:users(username, profile_img)
-      `)
-      .eq('product_id', productId)
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data
-  },
-
-  // Get average rating for product
-  async getProductRating(productId: string) {
-    const { data, error } = await supabase
-      .from('reviews')
-      .select('rating')
-      .eq('product_id', productId)
-
-    if (error) throw error
-
-    if (!data || data.length === 0) {
-      return { average: 0, count: 0 }
-    }
-
-    const sum = data.reduce((acc, review) => acc + review.rating, 0)
-    return {
-      average: Math.round((sum / data.length) * 10) / 10,
-      count: data.length,
-    }
-  },
-}
-
-// =====================================================
-// SCENT PREFERENCE OPERATIONS
-// =====================================================
-
-export const scentPreferenceService = {
-  // Get consumer preferences
-  async getByConsumer(consumerId: string) {
-    const { data, error } = await supabase
-      .from('scent_preferences')
-      .select('*')
-      .eq('consumer_id', consumerId)
-      .single()
-
-    if (error && error.code !== 'PGRST116') throw error // PGRST116 = not found
-    return data as ScentPreference | null
-  },
-
-  // Update preferences
-  async upsert(consumerId: string, preferences: Partial<ScentPreference>) {
-    const { data, error } = await supabase
-      .from('scent_preferences')
-      .upsert({
-        consumer_id: consumerId,
-        ...preferences,
+      .from('messages')
+      .insert({
+        inquiry_id: inquiryId,
+        sender_id: senderId,
+        body,
       })
       .select()
       .single()
 
     if (error) throw error
-    return data as ScentPreference
+    return data
   },
 
-  // Get recommended products based on preferences
-  async getRecommendations(consumerId: string) {
-    // Get consumer preferences
-    const preferences = await this.getByConsumer(consumerId)
-    
-    if (!preferences || !preferences.liked_ingredients) {
-      return []
-    }
-
-    // Get products with liked ingredients
+  // Get messages for inquiry
+  async getByInquiry(inquiryId: string) {
     const { data, error } = await supabase
-      .from('products')
+      .from('messages')
       .select(`
         *,
-        ingredient:ingredients(*),
-        supplier:users!products_supplier_id_fkey(*)
+        sender:company(id, name, profile_img)
       `)
-      .in('ingredient_id', preferences.liked_ingredients)
-      .eq('is_available', true)
-      .limit(10)
+      .eq('inquiry_id', inquiryId)
+      .order('created_at', { ascending: true })
 
     if (error) throw error
     return data

@@ -21,7 +21,7 @@ export default function WhyAromaraSection() {
   ];
 
   return (
-    <section className="py-12 md:py-20 px-4 md:px-6 bg-white">
+    <section className="py-12 md:py-20 px-4 md:px-6 bg-[#FAFAEE]">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
           {/* Left Content */}

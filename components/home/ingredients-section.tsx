@@ -24,7 +24,7 @@ export default function IngredientsSection() {
   ];
 
   return (
-    <section className="py-12 md:py-20 px-4 md:px-6 bg-secondary/20">
+    <section className="py-12 md:py-20 px-4 md:px-6 bg-[#FAFAEE]">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 md:mb-12">

@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 
 export default function HowItWorksSection() {
   return (
-    <section className="py-12 md:py-20 px-4 md:px-6 bg-secondary/20">
+    <section className="py-12 md:py-20 px-4 md:px-6 bg-[#FAFAEE]">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="mb-8 md:mb-16">

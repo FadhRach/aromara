@@ -5,95 +5,122 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Database Types
-export type UserRole = 'consumer' | 'supplier' | 'admin'
-export type RequestStatus = 'pending' | 'accepted' | 'rejected' | 'completed' | 'cancelled'
-export type CertificationType = 'organic' | 'halal' | 'iso' | 'gmp' | 'haccp' | 'eco' | 'other'
-export type IngredientType = 'wood' | 'flower' | 'oil' | 'alcohol' | 'spice' | 'resin' | 'fruit' | 'herb' | 'synthetic' | 'other'
+// =====================================================
+// DATABASE TYPES (matching Supabase schema)
+// =====================================================
 
-export interface User {
-  id_user: string
-  username: string
+export type CompanyRole = 'supplier' | 'buyer' | 'admin'
+export type InquiryStatus = 'open' | 'negotiating' | 'closed' | 'ordered'
+export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+
+// Company (Suppliers & Buyers)
+export interface Company {
+  id: string
+  name: string
   email: string
   password: string
   phone?: string
   profile_img?: string
-  company_name?: string
-  company_desc?: string
   address?: string
   city?: string
   province?: string
   country?: string
-  role: UserRole
+  role: CompanyRole
   is_verified: boolean
   is_active: boolean
   created_at: string
   updated_at: string
 }
 
-export interface Ingredient {
-  id_ingredient: string
+// Product Category
+export interface ProductCategory {
+  id: string
   name: string
-  type: IngredientType
   description?: string
-  scent_notes?: string
-  intensity?: number
   created_at: string
 }
 
+// Product
 export interface Product {
-  id_product: string
+  id: string
   supplier_id: string
-  ingredient_id: string
-  product_name: string
+  category_id: string
+  name: string
   description?: string
-  harvest_season?: string
-  extraction_method?: string
-  stock_qty: number
-  unit: string
-  price_per_unit: number
-  minimum_order: number
-  image_url?: string
-  certifications?: CertificationType[]
-  is_available: boolean
+  image_product?: string
+  price_per_unit?: number
+  min_order_qty?: number
+  stock_qty?: number
+  currency?: string
+  stock_status?: string
   created_at: string
   updated_at: string
+  
+  // Relations (populated via joins)
+  supplier?: Company
+  category?: ProductCategory
 }
 
-export interface QuotationRequest {
-  id_request: string
-  request_number: string
-  consumer_id: string
+// Inquiry (RFQ)
+export interface Inquiry {
+  id: string
   supplier_id: string
+  buyer_id: string
+  subject: string
+  message: string
+  estimated_total?: number
+  status: InquiryStatus
+  created_at: string
+  updated_at: string
+  
+  // Relations
+  supplier?: Company
+  buyer?: Company
+  items?: InquiryItem[]
+}
+
+// Inquiry Items
+export interface InquiryItem {
+  id: string
+  inquiry_id: string
   product_id: string
   qty: number
-  unit: string
+  unit?: string
+  target_price?: number
+  created_at: string
+  updated_at: string
+  
+  // Relations
+  product?: Product
+}
+
+// Order
+export interface Order {
+  id: string
+  inquiry_id?: string
+  buyer_id: string
+  supplier_id: string
+  total_amount: number
   notes?: string
-  status: RequestStatus
-  quoted_price?: number
-  supplier_notes?: string
-  response_date?: string
+  status: OrderStatus
   created_at: string
   updated_at: string
+  
+  // Relations
+  buyer?: Company
+  supplier?: Company
 }
 
-export interface Review {
-  id_review: string
-  consumer_id: string
-  product_id: string
-  rating: number
-  comment?: string
-  created_at: string
-}
-
-export interface ScentPreference {
-  id_preference: string
-  consumer_id: string
-  preferred_scent_notes?: string
-  intensity_preference?: number
-  liked_ingredients?: string[]
-  disliked_ingredients?: string[]
+// Message
+export interface Message {
+  id: string
+  inquiry_id: string
+  sender_id: string
+  body: string
   created_at: string
   updated_at: string
+  
+  // Relations
+  sender?: Company
 }
 

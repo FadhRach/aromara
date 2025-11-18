@@ -1,131 +1,108 @@
-import Navbar from "@/components/layout/navbar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import Swal from 'sweetalert2'
 
 export default function AdminDashboard() {
+  const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user')
+    if (!userData) {
+      router.push('/login')
+      return
+    }
+
+    const parsed = JSON.parse(userData)
+    if (parsed.role !== 'admin') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Akses Ditolak',
+        text: 'Anda tidak memiliki akses ke halaman ini',
+      }).then(() => router.push('/login'))
+      return
+    }
+
+    setUser(parsed)
+  }, [router])
+
+  const handleLogout = () => {
+    Swal.fire({
+      title: 'Logout',
+      text: 'Apakah Anda yakin ingin keluar?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Logout',
+      cancelButtonText: 'Batal',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem('user')
+        router.push('/login')
+      }
+    })
+  }
+
+  if (!user) return null
+
   return (
-    <div className="min-h-screen bg-secondary/10">
-      <Navbar variant="dashboard" />
-      
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">
-            Admin Dashboard ⚙️
-          </h1>
-          <p className="text-muted-foreground">
-            Manage platform, users, and suppliers
-          </p>
+    <div className="flex h-screen bg-[#FAFAEE]">
+      <aside className="w-64 bg-[#252F24] text-white flex flex-col">
+        <div className="p-6">
+          <h1 className="text-2xl font-bold">Aromara</h1>
+          <p className="text-xs text-white/60">Admin Panel</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardDescription>Total Users</CardDescription>
-              <CardTitle className="text-3xl">1,247</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription>Total Suppliers</CardDescription>
-              <CardTitle className="text-3xl">156</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription>Active Transactions</CardDescription>
-              <CardTitle className="text-3xl">89</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription>Platform Revenue</CardDescription>
-              <CardTitle className="text-3xl">$45.2K</CardTitle>
-            </CardHeader>
-          </Card>
+        <nav className="flex-1 p-4 space-y-1">
+          <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-3 bg-[#E8F5D5] text-[#252F24] rounded-lg font-medium">
+            <ion-icon name="grid"></ion-icon>
+            <span>Dashboard</span>
+          </Link>
+          <Link href="/admin/products" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10">
+            <ion-icon name="cube"></ion-icon>
+            <span>Products</span>
+          </Link>
+          <Link href="/admin/suppliers" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10">
+            <ion-icon name="business"></ion-icon>
+            <span>Suppliers</span>
+          </Link>
+          <Link href="/admin/buyers" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10">
+            <ion-icon name="people"></ion-icon>
+            <span>Buyers</span>
+          </Link>
+        </nav>
+
+        <div className="p-4">
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-600">
+            <ion-icon name="log-out"></ion-icon>
+            <span>Logout</span>
+          </button>
         </div>
+      </aside>
 
-        {/* Quick Actions */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Admin Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-4">
-            <Button className="bg-primary">Verify Supplier</Button>
-            <Button variant="outline">Manage Users</Button>
-            <Button variant="outline">View Reports</Button>
-            <Button variant="outline">Platform Settings</Button>
-          </CardContent>
-        </Card>
-
-        {/* Pending Verifications */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Pending Supplier Verifications</CardTitle>
-            <CardDescription>New supplier applications</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b">
-                <div>
-                  <p className="font-medium">Java Essential Oils</p>
-                  <p className="text-sm text-muted-foreground">Applied 2 days ago</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline">Review</Button>
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700">Approve</Button>
-                  <Button size="sm" variant="destructive">Reject</Button>
-                </div>
-              </div>
-              <div className="flex items-center justify-between py-3 border-b">
-                <div>
-                  <p className="font-medium">Bali Fragrance Co.</p>
-                  <p className="text-sm text-muted-foreground">Applied 3 days ago</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline">Review</Button>
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700">Approve</Button>
-                  <Button size="sm" variant="destructive">Reject</Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Activities */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Platform Activities</CardTitle>
-            <CardDescription>Latest system events</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b">
-                <div>
-                  <p className="font-medium">New User Registration</p>
-                  <p className="text-sm text-muted-foreground">user@example.com</p>
-                </div>
-                <span className="text-sm text-muted-foreground">1 hour ago</span>
-              </div>
-              <div className="flex items-center justify-between py-3 border-b">
-                <div>
-                  <p className="font-medium">Supplier Verified</p>
-                  <p className="text-sm text-muted-foreground">Golden Aura Fragrances</p>
-                </div>
-                <span className="text-sm text-muted-foreground">3 hours ago</span>
-              </div>
-              <div className="flex items-center justify-between py-3">
-                <div>
-                  <p className="font-medium">Transaction Completed</p>
-                  <p className="text-sm text-muted-foreground">Order #12345</p>
-                </div>
-                <span className="text-sm text-muted-foreground">5 hours ago</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <main className="flex-1 p-8">
+        <h2 className="text-3xl font-bold mb-8">Dashboard</h2>
+        <div className="grid grid-cols-4 gap-6">
+          <div className="bg-white rounded-xl p-6">
+            <div className="text-4xl font-bold">1,200</div>
+            <p className="text-gray-600">Suppliers</p>
+          </div>
+          <div className="bg-white rounded-xl p-6">
+            <div className="text-4xl font-bold">850</div>
+            <p className="text-gray-600">Buyers</p>
+          </div>
+          <div className="bg-white rounded-xl p-6">
+            <div className="text-4xl font-bold">4,500</div>
+            <p className="text-gray-600">Products</p>
+          </div>
+          <div className="bg-white rounded-xl p-6">
+            <div className="text-4xl font-bold">320</div>
+            <p className="text-gray-600">Inquiries</p>
+          </div>
+        </div>
+      </main>
     </div>
-  );
+  )
 }

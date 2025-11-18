@@ -9,14 +9,19 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@ionic/react": "^8.7.9",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/supabase-js": "^2.81.0",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "ionicons": "^8.0.13",
     "lucide-react": "^0.553.0",
     "next": "16.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "sweetalert2": "^11.26.3",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
