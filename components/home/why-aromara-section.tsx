@@ -1,64 +1,64 @@
 import Image from "next/image";
-import { Card } from "@/components/ui/card";
 
 export default function WhyAromaraSection() {
-  const features = [
-    {
-      title: "Verified Supliers",
-      description: "Quality and origin fragrance transparency",
-      image: "https://images.unsplash.com/photo-1556740758-90de374c12ad?w=400&q=80",
-    },
-    {
-      title: "Powered by Quote",
-      description: "Streamlined procurement for buyers",
-      image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&q=80",
-    },
-    {
-      title: "Sustainable Profile",
-      description: "Eco certifications with quality assurance",
-      image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&q=80",
-    },
-  ];
-
   return (
-    <section className="py-12 md:py-20 px-4 md:px-6 bg-[#FAFAEE]">
+    <section className="py-16 md:py-24 px-4 md:px-6 bg-[#FAFAEE]">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
-          {/* Left Content */}
-          <div className="order-2 lg:order-1">
-            <p className="text-xs md:text-sm font-semibold text-muted-foreground mb-2 md:mb-3">
-              WHY CHOOSE AROMARA?
-            </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 md:mb-6 leading-tight">
-              Discover Why Aromara Leads Indonesia&apos;s Fragrance Ecosystem
-            </h2>
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          
+          {/* Left: Text Content */}
+          <div className="space-y-8">
+            <div>
+              <p className="text-xs md:text-sm font-semibold text-muted-foreground mb-2 md:mb-3">
+                WHY CHOOSE AROMORA?
+              </p>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+                Discover Why Aromora Leads Indonesia&apos;s Fragrance Ecosystem
+              </h2>
+            </div>
+            
             <p className="text-sm md:text-base text-foreground leading-relaxed">
               Empowering Indonesia&apos;s perfume ecosystem through verified suppliers, sustainable sourcing, and transparent connections.
             </p>
           </div>
 
-          {/* Right Feature Cards */}
-          <div className="grid grid-cols-1 gap-3 md:gap-4 order-1 lg:order-2">
-            {features.map((feature, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4">
-                  <div className="relative w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-lg overflow-hidden flex-shrink-0">
-                    <Image
-                      src={feature.image}
-                      alt={feature.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-primary mb-1 text-sm md:text-base">{feature.title}</h3>
-                    <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">
-                      {feature.description}
-                    </p>
-                  </div>
+          {/* Right: Image Grid (1 Large Top + 2 Small Bottom) */}
+          <div className="grid grid-rows-2 gap-4 h-[500px] md:h-[600px]">
+            {/* Top Large Image */}
+            <div className="row-span-1 overflow-hidden rounded-2xl">
+              <div className="relative w-full h-full">
+                <Image
+                  src="https://images.unsplash.com/photo-1720281636639-23615888e0fb?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  alt="Green Plants Natural"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Bottom Two Small Images */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="overflow-hidden rounded-2xl">
+                <div className="relative w-full h-full">
+                  <Image
+                    src="https://images.unsplash.com/photo-1675149495735-5df1696650e0?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Essential Plants"
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-              </Card>
-            ))}
+              </div>
+              <div className="overflow-hidden rounded-2xl">
+                <div className="relative w-full h-full">
+                  <Image
+                    src="https://images.unsplash.com/photo-1626953313883-9d031d98307e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Herbal Garden"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
