@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { loginWithEmail } from '@/lib/auth'
 import { showAlert } from '@/lib/sweetalert'
+import IonIcon from '@/components/shared/IonIcon'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -87,7 +88,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-[#E8F5D5] flex items-center justify-center">
-                <ion-icon name="checkmark-circle" style={{ fontSize: '24px', color: '#252F24' }}></ion-icon>
+                <IonIcon name="checkmark-circle" style={{ fontSize: '24px', color: '#252F24' }} />
               </div>
               <div>
                 <h3 className="font-semibold">Supplier Terverifikasi</h3>
@@ -96,7 +97,7 @@ export default function LoginPage() {
             </div>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-[#E8F5D5] flex items-center justify-center">
-                <ion-icon name="leaf" style={{ fontSize: '24px', color: '#252F24' }}></ion-icon>
+                <IonIcon name="leaf" style={{ fontSize: '24px', color: '#252F24' }} />
               </div>
               <div>
                 <h3 className="font-semibold">Produk Berkualitas</h3>
@@ -105,7 +106,7 @@ export default function LoginPage() {
             </div>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-[#E8F5D5] flex items-center justify-center">
-                <ion-icon name="shield-checkmark" style={{ fontSize: '24px', color: '#252F24' }}></ion-icon>
+                <IonIcon name="shield-checkmark" style={{ fontSize: '24px', color: '#252F24' }} />
               </div>
               <div>
                 <h3 className="font-semibold">Transaksi Aman</h3>
@@ -195,7 +196,7 @@ export default function LoginPage() {
 
             <div className="text-center mt-6">
               <Link href="/" className="text-sm text-[#252F24]/60 hover:text-[#252F24] flex items-center justify-center gap-2">
-                <ion-icon name="arrow-back" style={{ fontSize: '16px' }}></ion-icon>
+                <IonIcon name="arrow-back" style={{ fontSize: '16px' }} />
                 Kembali ke Beranda
               </Link>
             </div>

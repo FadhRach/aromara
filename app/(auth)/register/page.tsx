@@ -5,14 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { registerCompany } from '@/lib/auth'
 import { showAlert } from '@/lib/sweetalert'
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'ion-icon': any
-    }
-  }
-}
+import IonIcon from '@/components/shared/IonIcon'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -109,7 +102,7 @@ export default function RegisterPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-[#E8F5D5] flex items-center justify-center">
-                <ion-icon name="flash" style={{ fontSize: '24px', color: '#252F24' }}></ion-icon>
+                <IonIcon name="flash" style={{ fontSize: '24px', color: '#252F24' }} />
               </div>
               <div>
                 <h3 className="font-semibold">Registrasi Cepat</h3>
@@ -118,7 +111,7 @@ export default function RegisterPage() {
             </div>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-[#E8F5D5] flex items-center justify-center">
-                <ion-icon name="people" style={{ fontSize: '24px', color: '#252F24' }}></ion-icon>
+                <IonIcon name="people" style={{ fontSize: '24px', color: '#252F24' }} />
               </div>
               <div>
                 <h3 className="font-semibold">Network Luas</h3>
@@ -127,7 +120,7 @@ export default function RegisterPage() {
             </div>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-[#E8F5D5] flex items-center justify-center">
-                <ion-icon name="trending-up" style={{ fontSize: '24px', color: '#252F24' }}></ion-icon>
+                <IonIcon name="trending-up" style={{ fontSize: '24px', color: '#252F24' }} />
               </div>
               <div>
                 <h3 className="font-semibold">Pertumbuhan Bisnis</h3>
@@ -255,7 +248,7 @@ export default function RegisterPage() {
                     disabled={loading}
                   >
                     <div className="text-center">
-                      <ion-icon name="cart" style={{ fontSize: '28px', color: '#252F24' }}></ion-icon>
+                      <IonIcon name="cart" style={{ fontSize: '28px', color: '#252F24' }} />
                       <div className="font-semibold text-[#252F24] text-sm mt-2">Buyer</div>
                       <div className="text-xs text-[#252F24]/60 mt-1">Beli bahan baku</div>
                     </div>
@@ -272,7 +265,7 @@ export default function RegisterPage() {
                     disabled={loading}
                   >
                     <div className="text-center">
-                      <ion-icon name="business" style={{ fontSize: '28px', color: '#252F24' }}></ion-icon>
+                      <IonIcon name="business" style={{ fontSize: '28px', color: '#252F24' }} />
                       <div className="font-semibold text-[#252F24] text-sm mt-2">Supplier</div>
                       <div className="text-xs text-[#252F24]/60 mt-1">Jual bahan baku</div>
                     </div>

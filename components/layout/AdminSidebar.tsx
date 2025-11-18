@@ -3,14 +3,7 @@
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { showAlert } from '@/lib/sweetalert'
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'ion-icon': any
-    }
-  }
-}
+import IonIcon from '@/components/shared/IonIcon'
 
 interface AdminSidebarProps {
   user: any
@@ -48,7 +41,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
               : 'hover:bg-white/10'
           }`}
         >
-          <ion-icon name="grid"></ion-icon>
+          <IonIcon name="grid" />
           <span>Dashboard</span>
         </Link>
         
@@ -64,7 +57,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
               : 'hover:bg-white/10'
           }`}
         >
-          <ion-icon name="business"></ion-icon>
+          <IonIcon name="business" />
           <span>Suppliers</span>
         </Link>
         <Link 
@@ -75,7 +68,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
               : 'hover:bg-white/10'
           }`}
         >
-          <ion-icon name="people"></ion-icon>
+          <IonIcon name="people" />
           <span>Buyers</span>
         </Link>
         
@@ -91,7 +84,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
               : 'hover:bg-white/10'
           }`}
         >
-          <ion-icon name="cube"></ion-icon>
+          <IonIcon name="cube" />
           <span>All Products</span>
         </Link>
         <Link 
@@ -102,7 +95,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
               : 'hover:bg-white/10'
           }`}
         >
-          <ion-icon name="pricetags"></ion-icon>
+          <IonIcon name="pricetags" />
           <span>Categories</span>
         </Link>
         
@@ -118,7 +111,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
               : 'hover:bg-white/10'
           }`}
         >
-          <ion-icon name="mail"></ion-icon>
+          <IonIcon name="mail" />
           <span>Inquiries</span>
           <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">45</span>
         </Link>
@@ -130,7 +123,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
               : 'hover:bg-white/10'
           }`}
         >
-          <ion-icon name="cart"></ion-icon>
+          <IonIcon name="cart" />
           <span>Orders</span>
         </Link>
       </nav>
@@ -145,7 +138,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
           }`}
         >
           <div className="w-8 h-8 rounded-full bg-[#E8F5D5] flex items-center justify-center">
-            <ion-icon name="person" style={{ fontSize: '18px', color: '#252F24' }}></ion-icon>
+            <IonIcon name="person" style={{ fontSize: '18px', color: '#252F24' }} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{user?.name || 'Admin'}</p>
@@ -156,7 +149,7 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
           onClick={handleLogout} 
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-600 transition"
         >
-          <ion-icon name="log-out"></ion-icon>
+          <IonIcon name="log-out" />
           <span>Logout</span>
         </button>
       </div>
