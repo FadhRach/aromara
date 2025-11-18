@@ -137,7 +137,7 @@ export default function RequestQuotePage() {
       }
 
       // Prepare inquiry data for each supplier
-      const inquiries = suppliers.map(supplier => ({
+      const inquiries = suppliers.map((supplier: any) => ({
         supplier_id: supplier.id,
         buyer_id: user?.id || null,
         contact_name: formData.contact_name,

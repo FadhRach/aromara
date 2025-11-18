@@ -64,7 +64,7 @@ export default function ExploreSuppliersPage() {
 
       // Get product counts for each supplier
       const suppliersWithCount = await Promise.all(
-        (suppliersData || []).map(async (supplier) => {
+        (suppliersData || []).map(async (supplier: any) => {
           const { count } = await supabase
             .from('products')
             .select('*', { count: 'exact', head: true })

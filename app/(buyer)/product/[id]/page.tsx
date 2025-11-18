@@ -95,7 +95,7 @@ export default function ProductDetailPage() {
 
       if (!imagesError && imagesData && imagesData.length > 0) {
         setImages(imagesData);
-        const primaryImage = imagesData.find(img => img.is_primary) || imagesData[0];
+        const primaryImage = imagesData.find((img: any) => img.is_primary) || imagesData[0];
         setSelectedImage(primaryImage.image_url);
       } else if (productData.image_product) {
         setSelectedImage(productData.image_product);
