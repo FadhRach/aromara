@@ -36,12 +36,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/suppliers" className="hover:text-[#E8F5D5] transition">
-                  Explore Ingridient
+                <Link href="/explore-suppliers" className="hover:text-[#E8F5D5] transition">
+                  Explore Ingredient
                 </Link>
               </li>
               <li>
-                <Link href="/quotation" className="hover:text-[#E8F5D5] transition">
+                <Link href="/explore-suppliers" className="hover:text-[#E8F5D5] transition">
                   Request Quotation
                 </Link>
               </li>

@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import Swal from 'sweetalert2'
 import { loginWithEmail } from '@/lib/auth'
+import { showAlert } from '@/lib/sweetalert'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -13,16 +13,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // Redirect if already logged in
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      router.push('/explore-suppliers');
+    }
+  }, [router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!email || !password) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Oops...',
-        text: 'Email dan password harus diisi!',
-        confirmButtonColor: '#252F24',
-      })
+      showAlert.warning('Oops...', 'Email dan password harus diisi!')
       return
     }
 
@@ -32,44 +35,38 @@ export default function LoginPage() {
       const result = await loginWithEmail(email, password)
 
       if (result.success && result.data) {
-        // Save to localStorage
+        // Store in localStorage
         localStorage.setItem('user', JSON.stringify(result.data))
         
-        Swal.fire({
-          icon: 'success',
-          title: 'Login Berhasil!',
-          text: `Selamat datang, ${result.data.name}`,
-          timer: 1500,
-          showConfirmButton: false,
+        // Set cookie via API route
+        await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(result.data),
         })
+        
+        showAlert.success('Login Berhasil!', `Selamat datang, ${result.data.name}`)
 
-        // Redirect based on role
+        // Get redirect URL from query params or default based on role
+        const urlParams = new URLSearchParams(window.location.search)
+        const redirect = urlParams.get('redirect')
+        
         setTimeout(() => {
-          if (result.data.role === 'admin') {
-            router.push('/admin/dashboard')
+          if (redirect) {
+            router.push(redirect)
+          } else if (result.data.role === 'buyer') {
+            router.push('/explore-suppliers')
           } else if (result.data.role === 'supplier') {
             router.push('/supplier/dashboard')
-          } else if (result.data.role === 'buyer') {
-            router.push('/user/dashboard')
           } else {
             router.push('/')
           }
         }, 1500)
       } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Login Gagal',
-          text: result.error || 'Email atau password salah',
-          confirmButtonColor: '#252F24',
-        })
+        showAlert.error('Login Gagal', result.error || 'Email atau password salah')
       }
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Terjadi kesalahan. Silakan coba lagi.',
-        confirmButtonColor: '#252F24',
-      })
+      showAlert.error('Error', 'Terjadi kesalahan. Silakan coba lagi.')
     } finally {
       setLoading(false)
     }
