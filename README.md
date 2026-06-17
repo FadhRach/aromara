@@ -1,6 +1,6 @@
-# 🌿 AROMARA - B2B Fragrance & Essential Oil Marketplace
+# AROMARA — B2B Fragrance & Essential Oil Marketplace
 
-> Platform B2B Indonesia yang menghubungkan supplier essential oil dengan pembeli terverifikasi. Mempermudah transaksi bahan baku aromaterapi, parfum, dan ekstrak alami berkualitas tinggi.
+Platform B2B Indonesia yang menghubungkan supplier essential oil dengan pembeli terverifikasi. Mempermudah transaksi bahan baku aromaterapi, parfum, dan ekstrak alami berkualitas tinggi.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.0-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -9,267 +9,196 @@
 
 ---
 
-## 📖 Tentang Project
+## Tentang Project
 
 **AROMARA** adalah marketplace B2B untuk industri fragrance Indonesia, menghubungkan:
-- 🏭 **Supplier** - Produsen essential oil & ekstrak alami
-- 🛍️ **Buyer** - Manufaktur parfum, kosmetik, spa, dan distributor
-- ✅ **Verifikasi** - Semua supplier terverifikasi dengan sertifikasi lengkap
 
-### 💡 Alasan & Latar Belakang
+- **Supplier** — Produsen essential oil & ekstrak alami
+- **Buyer** — Manufaktur parfum, kosmetik, spa, dan distributor
 
-Indonesia adalah penghasil essential oil terbesar di dunia (patchouli, clove, citronella), namun:
-- ❌ Tidak ada platform terpusat untuk transaksi B2B
-- ❌ Buyer kesulitan menemukan supplier terverifikasi
-- ❌ Proses quotation & negosiasi tidak transparan
-
-**AROMARA** hadir untuk:
-- ✅ Mempermudah koneksi supplier-buyer
-- ✅ Memberikan transparansi harga & kualitas
-- ✅ Menyediakan sistem quotation yang efisien
-- ✅ Mendukung pertumbuhan industri fragrance lokal
+Indonesia adalah penghasil essential oil terbesar di dunia (patchouli, clove, citronella), namun tidak ada platform terpusat untuk transaksi B2B dan proses quotation yang transparan. AROMARA hadir untuk menjembatani hal tersebut.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Frontend
-- **Next.js 16.0** - React framework with App Router & Turbopack
-- **TypeScript** - Type-safe development
-- **Tailwind CSS v4** - Utility-first styling
-- **shadcn/ui** - Pre-built accessible components
+**Frontend**
+- Next.js 16.0 — React framework with App Router & Turbopack
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui
 
-### Backend & Database
-- **Supabase** - PostgreSQL database + Storage
-- **Supabase Storage** - Cloud storage untuk product images
-- **Row Level Security (RLS)** - Database security policies
+**Backend & Database**
+- Supabase — PostgreSQL database + Storage
+- Row Level Security (RLS)
 
-### Tools & Libraries
-- **Lucide Icons** - Modern icon library
-- **SweetAlert2** - Beautiful alerts & notifications
-- **Google Gemini AI** - AI assistant (MoraAI) untuk product recommendations
+**Libraries**
+- Lucide Icons, SweetAlert2
+- Google Gemini AI (`gemini-2.0-flash`) — MoraAI chatbot untuk rekomendasi produk
 
 ---
 
-## 🚀 Cara Menggunakan
+## Cara Menjalankan
 
-### 1️⃣ Prerequisites
-```bash
-Node.js >= 18.x
-npm atau yarn
-Git
-```
+### Prerequisites
 
-### 2️⃣ Clone Repository
+- Node.js >= 18.x
+- npm
+- Git
+
+### Instalasi
+
 ```bash
 git clone https://github.com/FadhRach/aromara.git
 cd aromara
-```
-
-### 3️⃣ Install Dependencies
-```bash
 npm install
 ```
 
-### 4️⃣ Setup Environment Variables
-Buat file `.env.local` di root folder:
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+### Environment Variables
 
-# Google Gemini AI (Optional)
+Salin `.env.example` menjadi `.env.local` dan isi nilainya:
+
+```bash
+cp .env.example .env.local
+```
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 GEMINI_API_KEY=your-gemini-api-key
 ```
 
-### 5️⃣ Setup Database
-Jalankan migration SQL di Supabase:
-```bash
-# Buka Supabase Dashboard > SQL Editor
-# Jalankan file-file di folder supabase/migrations/ secara berurutan:
-# 1. 001_core_schema_with_seeder.sql
+Semua key tersedia di Supabase Dashboard > Settings > API. Gemini API key bisa dibuat di https://aistudio.google.com/apikey.
+
+### Setup Database
+
+Jalankan migration di Supabase Dashboard > SQL Editor:
+
+```
+supabase/migrations/001_core_schema_with_seeder.sql
 ```
 
-### 6️⃣ Run Development Server
+### Jalankan Development Server
+
 ```bash
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000) 🎉
+Buka http://localhost:3000
 
 ---
 
-## 📱 Halaman & Fitur
+## Akun Demo
 
-### 🌐 Public Pages
-| Halaman | URL | Deskripsi |
-|---------|-----|-----------|
-| **Homepage** | `/` | Landing page dengan hero, stats, how it works |
-| **Explore Suppliers** | `/explore-suppliers` | Directory supplier dengan filter & search |
-| **Supplier Detail** | `/supplier/[id]` | Profile supplier + katalog produk |
-| **Product Detail** | `/product/[id]` | Detail produk dengan spesifikasi lengkap |
-| **Request Quote** | `/request-quote` | Form pengajuan permintaan penawaran |
-| **About** | `/about` | Tentang platform Aromara |
+Setelah migration database selesai, gunakan akun berikut untuk mencoba aplikasi:
 
-### 🔐 Authentication
-| Halaman | URL | Deskripsi |
-|---------|-----|-----------|
-| **Login** | `/login` | Login untuk buyer & supplier |
-| **Register** | `/register` | Registrasi akun baru |
+| Role | Email | Password |
+|------|-------|----------|
+| Supplier | supplier@aromara.id | aromara123 |
+| Buyer | buyer@aromara.id | aromara123 |
+| Admin | admin@aromara.id | aromara123 |
 
-### 📊 Supplier Dashboard
-| Halaman | URL | Deskripsi |
-|---------|-----|-----------|
-| **Dashboard** | `/supplier/dashboard` | Overview analytics & recent activities |
-| **Products** | `/supplier/products` | CRUD produk dengan image upload |
-| **Categories** | `/supplier/categories` | Manage kategori produk |
-| **Inquiries** | `/supplier/inquiries` | Kelola quote requests dari buyer |
+Atau jalankan seed script untuk membuat akun-akun tersebut secara otomatis:
+
+```bash
+node --env-file=.env.local scripts/seed-test-accounts.js
+```
 
 ---
 
-## ✨ Fitur Utama
+## Halaman & Fitur
 
-### ✅ Sudah Implemented
-- [x] **Homepage interaktif** - Hero, stats, how it works (with clickable steps), ingredients showcase
-- [x] **Supplier directory** - Browse, filter, search suppliers
-- [x] **Product CRUD** - Create, read, update, delete products
-- [x] **Image Upload** - Upload ke Supabase Storage dengan preview
-- [x] **Category Management** - CRUD kategori produk
-- [x] **Responsive Design** - Mobile-first, optimized untuk semua device
-- [x] **MoraAI Chatbot** - AI assistant untuk rekomendasi produk
-- [x] **Real-time Updates** - Data sync dengan Supabase realtime
+**Public**
 
-### 🚧 Coming Soon
-- [ ] Authentication dengan Supabase Auth
-- [ ] Quotation request system (buyer → supplier)
-- [ ] Messaging system antara buyer-supplier
-- [ ] Payment integration
-- [ ] Order tracking & shipping
-- [ ] Email notifications
-- [ ] Admin panel untuk verifikasi supplier
+| Halaman | URL |
+|---------|-----|
+| Homepage | `/` |
+| Explore Suppliers | `/explore-suppliers` |
+| Supplier Detail | `/supplier/[id]` |
+| Product Detail | `/product/[id]` |
+| Request Quote | `/request-quote` |
+| About | `/about` |
 
----
+**Authentication**
 
-## � User Roles
+| Halaman | URL |
+|---------|-----|
+| Login | `/login` |
+| Register | `/register` |
 
-### 1. **Buyer/Pembeli**
-- Browse & search suppliers
-- Lihat katalog produk + spesifikasi
-- Request quotation langsung ke supplier
-- Manage orders & tracking
+**Supplier Dashboard**
 
-### 2. **Supplier**
-- Manage produk & kategori
-- Upload product images
-- Respond to quote requests
-- Analytics & reports
-
-### 3. **Admin** (Future)
-- Verifikasi supplier baru
-- Manage users & content
-- Platform monitoring
+| Halaman | URL |
+|---------|-----|
+| Dashboard | `/supplier/dashboard` |
+| Products | `/supplier/products` |
+| Categories | `/supplier/categories` |
+| Inquiries | `/supplier/inquiries` |
 
 ---
 
-## 📁 Struktur Project
+## Fitur
+
+**Sudah Implemented**
+- Homepage interaktif — hero, stats, how it works, ingredients showcase
+- Supplier directory — browse, filter, search
+- Product CRUD dengan image upload ke Supabase Storage
+- Category management
+- Responsive design (mobile-first)
+- MoraAI Chatbot — rekomendasi bahan baku berbasis Gemini AI
+
+**Coming Soon**
+- Quotation request system (buyer ke supplier)
+- Messaging system
+- Payment integration
+- Order tracking
+- Admin panel untuk verifikasi supplier
+
+---
+
+## Struktur Project
 
 ```
 aromara/
-├── app/                      # Next.js App Router
-│   ├── (auth)/              # Auth pages (login, register)
-│   ├── (buyer)/             # Buyer pages
-│   ├── (supplier)/          # Supplier dashboard
-│   ├── (marketing)/         # Homepage
-│   └── api/                 # API routes
-├── components/              # React components
-│   ├── home/               # Homepage sections
-│   ├── layout/             # Navbar, footer, sidebar
-│   ├── shared/             # Reusable components
-│   └── ui/                 # shadcn/ui components
-├── lib/                     # Utilities & configs
-│   ├── supabase.ts         # Supabase client
-│   ├── auth.ts             # Auth helpers
-│   ├── gemini.ts           # Google Gemini AI
-│   └── utils.ts            # General utilities
-├── supabase/
-│   └── migrations/         # Database migrations
-└── public/                 # Static assets
+├── app/
+│   ├── (auth)/          # Login, register
+│   ├── (buyer)/         # Halaman buyer
+│   ├── (supplier)/      # Supplier dashboard
+│   ├── (marketing)/     # Homepage
+│   └── api/             # API routes
+├── components/
+│   ├── home/            # Sections homepage
+│   ├── layout/          # Navbar, footer, sidebar
+│   ├── shared/          # Komponen reusable
+│   └── ui/              # shadcn/ui components
+├── lib/
+│   ├── supabase.ts      # Supabase client & types
+│   ├── auth.ts          # Auth helpers (custom, MD5-based)
+│   ├── gemini.ts        # Google Gemini AI
+│   └── database.ts      # Service layer (companyService, productService, dll)
+└── supabase/
+    └── migrations/
 ```
 
 ---
 
-## 🎨 Design System
+## Design System
 
-### Warna Tema
-```css
+```
 Primary (Dark Green):    #252F24
 Secondary (Light Green): #E1F0C9
 Background (Cream):      #FAFAEE
 Accent (Soft Green):     #D4E5D4
-```
-
-### Typography
-- **Font**: Lexend (Google Fonts)
-- **Heading**: Bold, 36-56px
-- **Body**: Regular, 14-16px
-
----
-
-## 🧪 Testing Accounts
-
-Gunakan akun berikut untuk testing:
-
-```
-📧 Supplier Account
-Email: supplier@aromara.com
-Password: supplier123
-
-📧 Buyer Account
-Email: buyer@aromara.com
-Password: buyer123
+Font: Lexend (Google Fonts)
 ```
 
 ---
 
-## 📚 Documentation
+## License
 
-- [Next.js Docs](https://nextjs.org/docs)
-- [Supabase Docs](https://supabase.com/docs)
-- [Tailwind CSS Docs](https://tailwindcss.com/docs)
-- [shadcn/ui](https://ui.shadcn.com)
+© 2025 AROMARA. All rights reserved.
 
----
+Developed by **FadhRach** and Team **Penghuni23Paskal**.
 
-## 🤝 Contributing
-
-Contributions are welcome! Untuk kontribusi:
-
-1. Fork repository
-2. Create branch baru: `git checkout -b feature/nama-fitur`
-3. Commit changes: `git commit -m "Add: fitur baru"`
-4. Push ke branch: `git push origin feature/nama-fitur`
-5. Submit Pull Request
-
----
-
-## 📄 License
-
-© 2025 **AROMARA**. All rights reserved.
-
----
-
-## 👨‍💻 Developer
-
-Developed with ❤️ by **FadhRach** and Team **Penghuni23Paskal** for Indonesian Fragrance Industry
-
-**Contact:**
 - GitHub: [@FadhRach](https://github.com/FadhRach)
-- Project: [AROMARA](https://github.com/FadhRach/aromara)
-
----
-
-<div align="center">
-  <strong>🌿 Empowering Indonesia's Fragrance Ecosystem 🌿</strong>
-</div>
-
-
