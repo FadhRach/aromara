@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { askMoraAI, type MoraAIResponse } from '@/lib/gemini'
+import type { MoraAIResponse } from '@/lib/gemini'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -56,8 +56,16 @@ export default function MoraAI({ onProductSelect }: MoraAIProps) {
     setLoading(true)
 
     try {
-      // 1. Ask MORA AI
-      const aiResponse = await askMoraAI(query)
+      // 1. Ask MORA AI via server-side API route
+      const res = await fetch('/api/mora', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+      })
+      if (!res.ok) throw new Error('Gagal menghubungi MORA AI')
+      const json = await res.json()
+      if (!json.success) throw new Error(json.error || 'MORA AI error')
+      const aiResponse: MoraAIResponse = json.data
       
       // 2. Search matching products and suppliers in database
       let products: any[] = []
