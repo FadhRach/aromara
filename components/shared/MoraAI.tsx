@@ -62,9 +62,10 @@ export default function MoraAI({ onProductSelect }: MoraAIProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
       })
-      if (!res.ok) throw new Error('Gagal menghubungi MORA AI')
       const json = await res.json()
-      if (!json.success) throw new Error(json.error || 'MORA AI error')
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Gagal menghubungi MORA AI')
+      }
       const aiResponse: MoraAIResponse = json.data
       
       // 2. Search matching products and suppliers in database
@@ -132,7 +133,7 @@ export default function MoraAI({ onProductSelect }: MoraAIProps) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        text: 'Maaf, terjadi kesalahan. Silakan coba lagi.',
+        text: error?.message || 'Maaf, terjadi kesalahan. Silakan coba lagi.',
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, errorMessage])

@@ -1,11 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-// Inisialisasi Gemini AI
-// API Key gratis bisa didapat di: https://aistudio.google.com/apikey
-const genAI = new GoogleGenerativeAI(
-  process.env.GEMINI_API_KEY || ''
-)
-
 export interface MoraAIResponse {
   ingredients: string[]
   explanation: string
@@ -14,105 +8,98 @@ export interface MoraAIResponse {
   missingProducts?: string[]
 }
 
-export async function askMoraAI(userQuery: string): Promise<MoraAIResponse> {
-  try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+const MAX_RETRIES = 3
 
-    const prompt = `Anda adalah MORA AI, asisten cerdas untuk platform Aromara yang membantu buyer menemukan bahan baku parfum berkualitas dari Indonesia.
+async function callWithRetry(fn: () => Promise<any>): Promise<any> {
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      return await fn()
+    } catch (error: any) {
+      const is429 = error.message?.includes('429') || error.status === 429
+      const isLastAttempt = attempt === MAX_RETRIES - 1
 
-USER REQUEST: "${userQuery}"
+      if (is429 && !isLastAttempt) {
+        // Exponential backoff: 2s, 4s, 8s
+        const delay = 2000 * Math.pow(2, attempt)
+        await new Promise(resolve => setTimeout(resolve, delay))
+        continue
+      }
 
-Produk yang TERSEDIA di database kami:
-1. Lavender Oil - Aroma floral segar dan menenangkan
-2. Patchouli Oil - Aroma earthy, woody, dan eksotis
-3. Vanilla Extract - Aroma manis dan hangat
-4. Rose Oil - Aroma floral elegan dan romantis
-5. Jasmine Absolute - Aroma floral manis dan sensual
-6. Sandalwood Oil - Aroma woody creamy dan spiritual
-7. Bergamot Oil - Aroma citrus segar dan ceria
-8. Ylang Ylang Oil - Aroma floral manis dan eksotis
-
-TUGAS ANDA:
-1. Analisis apa yang user inginkan (jenis aroma, karakteristik parfum)
-2. Rekomendasikan bahan-bahan dari daftar di atas yang COCOK
-3. Jika ada bahan yang TIDAK ADA di database tapi seharusnya diperlukan, sebutkan di "missingProducts"
-4. Berikan tips formula dan komposisi yang baik
-
-FORMAT RESPONSE (JSON):
-{
-  "ingredients": ["nama bahan1", "nama bahan2"],
-  "explanation": "penjelasan mengapa bahan-bahan ini cocok untuk kebutuhan user",
-  "tips": "tips komposisi dan cara penggunaan",
-  "matchedProducts": ["produk yang ada di database yang cocok"],
-  "missingProducts": ["produk yang tidak ada tapi diperlukan"]
+      throw error
+    }
+  }
 }
 
-PENTING:
-- Gunakan bahasa Indonesia yang natural
-- Hanya rekomendasikan produk yang ADA di database untuk matchedProducts
-- Untuk missingProducts, sebutkan bahan lain yang ideal tapi belum tersedia
-- Berikan penjelasan yang praktis untuk industri parfum
+export async function askMoraAI(userQuery: string): Promise<MoraAIResponse> {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY belum dikonfigurasi. Tambahkan di Vercel Environment Variables.')
+  }
 
-Response Anda:`
+  const genAI = new GoogleGenerativeAI(apiKey)
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
-    const result = await model.generateContent(prompt)
-    const response = result.response
-    const text = response.text()
+  const prompt = `Kamu adalah MORA AI, asisten platform Aromara untuk rekomendasi bahan parfum Indonesia.
 
-    // Parse JSON response
+PERMINTAAN: "${userQuery}"
+
+PRODUK TERSEDIA:
+Lavender Oil, Patchouli Oil, Vanilla Extract, Rose Oil, Jasmine Absolute, Sandalwood Oil, Bergamot Oil, Ylang Ylang Oil
+
+TUGAS: Rekomendasikan bahan yang cocok dari daftar di atas. Jika ada bahan ideal yang tidak ada di daftar, masukkan ke missingProducts.
+
+RESPONSE (JSON only, no markdown):
+{"ingredients":[],"explanation":"","tips":"","matchedProducts":[],"missingProducts":[]}`
+
+  try {
+    const result = await callWithRetry(() => model.generateContent(prompt))
+    const text = result.response.text()
+
     try {
-      // Extract JSON dari response (kadang AI bisa kasih markdown)
       const jsonMatch = text.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0])
         return {
           ingredients: parsed.ingredients || [],
           explanation: parsed.explanation || text,
-          tips: parsed.tips || 'Konsultasikan dengan supplier untuk formula terbaik',
+          tips: parsed.tips || 'Konsultasikan dengan supplier untuk formula terbaik.',
           matchedProducts: parsed.matchedProducts || [],
           missingProducts: parsed.missingProducts || []
         }
       }
-    } catch (parseError) {
-      console.error('JSON parse error:', parseError)
+    } catch {
+      // fallthrough to text extraction
     }
 
-    // Fallback: extract dari teks biasa
     return {
       ingredients: extractIngredients(text),
       explanation: text,
-      tips: 'Hubungi supplier untuk mendapatkan rekomendasi formula yang tepat',
+      tips: 'Hubungi supplier untuk rekomendasi formula yang tepat.',
       matchedProducts: extractIngredients(text),
       missingProducts: []
     }
 
   } catch (error: any) {
-    console.error('Gemini API Error:', error)
-    
-    // Error handling yang lebih baik
-    if (error.message?.includes('API_KEY')) {
-      throw new Error('API Key tidak valid. Silakan hubungi administrator.')
+    console.error('Gemini API Error:', error.message)
+
+    if (error.message?.includes('429')) {
+      throw new Error('MORA AI sedang sibuk karena banyak permintaan. Tunggu beberapa detik lalu coba lagi.')
     }
-    
-    throw new Error('MORA AI sedang sibuk. Silakan coba lagi dalam beberapa saat.')
+    if (error.message?.includes('API_KEY') || error.message?.includes('API key')) {
+      throw new Error('API Key Gemini tidak valid. Hubungi administrator.')
+    }
+
+    throw new Error('MORA AI mengalami gangguan. Silakan coba lagi.')
   }
 }
 
 function extractIngredients(text: string): string[] {
-  const availableProducts = [
-    'Lavender Oil', 'Patchouli Oil', 'Vanilla Extract', 
+  const products = [
+    'Lavender Oil', 'Patchouli Oil', 'Vanilla Extract',
     'Rose Oil', 'Jasmine Absolute', 'Sandalwood Oil',
     'Bergamot Oil', 'Ylang Ylang Oil'
   ]
-  
-  const found: string[] = []
-  const lowerText = text.toLowerCase()
-  
-  availableProducts.forEach(product => {
-    if (lowerText.includes(product.toLowerCase())) {
-      found.push(product)
-    }
-  })
-  
+  const lower = text.toLowerCase()
+  const found = products.filter(p => lower.includes(p.toLowerCase()))
   return found.length > 0 ? found : ['Lavender Oil', 'Vanilla Extract']
 }
