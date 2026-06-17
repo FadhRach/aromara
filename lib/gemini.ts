@@ -1,9 +1,9 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 // Inisialisasi Gemini AI
-// API Key gratis bisa didapat di: https://makersuite.google.com/app/apikey
+// API Key gratis bisa didapat di: https://aistudio.google.com/apikey
 const genAI = new GoogleGenerativeAI(
-  process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyDEMO_KEY'
+  process.env.GEMINI_API_KEY || ''
 )
 
 export interface MoraAIResponse {
@@ -16,8 +16,7 @@ export interface MoraAIResponse {
 
 export async function askMoraAI(userQuery: string): Promise<MoraAIResponse> {
   try {
-    // Model updated to Gemini 2.5 Flash (Nov 2025) - Fast & FREE
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
     const prompt = `Anda adalah MORA AI, asisten cerdas untuk platform Aromara yang membantu buyer menemukan bahan baku parfum berkualitas dari Indonesia.
 

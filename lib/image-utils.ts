@@ -2,8 +2,8 @@
  * Utility functions for handling product images
  */
 
-const SUPABASE_PROJECT_ID = 'uefdvcdpturypqyzavjq';
-const SUPABASE_STORAGE_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/product-images`;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_STORAGE_URL = `${supabaseUrl}/storage/v1/object/public/product-images`;
 
 /**
  * Convert relative or malformed URLs to full Supabase Storage URLs
@@ -18,7 +18,7 @@ export function normalizeImageUrl(url: string | null | undefined): string | null
 
   // Relative path starting with /
   if (url.startsWith('/')) {
-    return `https://${SUPABASE_PROJECT_ID}.supabase.co${url}`;
+    return `${supabaseUrl}${url}`;
   }
 
   // Path without leading slash (e.g., "products/image.jpg")
