@@ -8,7 +8,9 @@ import { showAlert } from '@/lib/sweetalert';
 export default function SupplierProfile() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [supplierData, setSupplierData] = useState<any>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [supplierData, setSupplierData] = useState<{ id: string } | null>(null);
+  const [profileImg, setProfileImg] = useState<string>('');
   const [formData, setFormData] = useState({
     company_name: '',
     email: '',
@@ -41,10 +43,11 @@ export default function SupplierProfile() {
 
       if (result.success && result.data) {
         const profile = result.data;
+        setProfileImg(profile.profile_img || '');
         setFormData({
-          company_name: profile.company_name || '',
+          company_name: profile.company_name || profile.name || '',
           email: profile.email || '',
-          phone_number: profile.phone_number || '',
+          phone_number: profile.phone_number || profile.phone || '',
           address: profile.address || '',
           city: profile.city || '',
           province: profile.province || '',
@@ -111,6 +114,44 @@ export default function SupplierProfile() {
     });
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !supplierData) return;
+
+    setUploadingPhoto(true);
+    try {
+      const formPayload = new FormData();
+      formPayload.append('file', file);
+
+      const uploadRes = await fetch('/api/upload', { method: 'POST', body: formPayload });
+      const uploadResult = await uploadRes.json();
+
+      if (!uploadResult.success) {
+        showAlert.error('Upload gagal', uploadResult.error || 'Gagal mengupload foto');
+        return;
+      }
+
+      const updateRes = await fetch('/api/supplier/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supplier_id: supplierData.id, profile_img: uploadResult.data.url }),
+      });
+      const updateResult = await updateRes.json();
+
+      if (updateResult.success) {
+        setProfileImg(uploadResult.data.url);
+        showAlert.success('Berhasil!', 'Foto profil berhasil diperbarui');
+      } else {
+        showAlert.error('Error', updateResult.error || 'Gagal menyimpan foto');
+      }
+    } catch {
+      showAlert.error('Error', 'Gagal mengupload foto profil');
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = '';
+    }
+  };
+
   const handleCertificationChange = (cert: string) => {
     setFormData({
       ...formData,
@@ -139,24 +180,46 @@ export default function SupplierProfile() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Profile Picture */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile Picture</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Foto Profil</h2>
           <div className="flex items-center gap-6">
-            <div className="relative w-32 h-32 rounded-full bg-gray-200 overflow-hidden">
-              <Image
-                src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&q=80"
-                alt="Company Logo"
-                fill
-                className="object-cover"
-              />
+            <div className="relative w-32 h-32 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+              {profileImg ? (
+                <Image
+                  src={profileImg}
+                  alt="Company Logo"
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <IonIcon name="business-outline" className="text-4xl text-gray-400" />
+                </div>
+              )}
             </div>
             <div>
-              <button
-                type="button"
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                Change Photo
-              </button>
-              <p className="text-sm text-gray-500 mt-2">JPG, PNG. Max 2MB</p>
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  disabled={uploadingPhoto}
+                  className="hidden"
+                />
+                <span className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                  {uploadingPhoto ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Mengupload...
+                    </>
+                  ) : (
+                    <>
+                      <IonIcon name="camera-outline" className="text-base mr-2" />
+                      {profileImg ? 'Ganti Foto' : 'Upload Foto'}
+                    </>
+                  )}
+                </span>
+              </label>
+              <p className="text-sm text-gray-500 mt-2">JPG, PNG. Maks 2MB</p>
             </div>
           </div>
         </div>

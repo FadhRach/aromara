@@ -27,10 +27,13 @@ export async function GET(request: NextRequest) {
         inquiry_items (
           id,
           product_id,
-          product_name,
           qty,
           unit,
-          notes
+          target_price,
+          products (
+            id,
+            name
+          )
         )
       `)
       .eq('supplier_id', supplierId)
@@ -45,12 +48,10 @@ export async function GET(request: NextRequest) {
     if (error) throw error;
 
     return NextResponse.json({ success: true, data: inquiries });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error';
     console.error('Error fetching inquiries:', error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 
@@ -58,23 +59,28 @@ export async function PUT(request: NextRequest) {
   try {
     const supabase = createClient();
     const body = await request.json();
-    const { id, status } = body;
+    const { inquiry_id, status } = body;
+
+    if (!inquiry_id || !status) {
+      return NextResponse.json(
+        { success: false, error: 'inquiry_id and status are required' },
+        { status: 400 }
+      );
+    }
 
     const { data: inquiry, error } = await supabase
       .from('inquiry')
       .update({ status })
-      .eq('id', id)
+      .eq('id', inquiry_id)
       .select()
       .single();
 
     if (error) throw error;
 
     return NextResponse.json({ success: true, data: inquiry });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal server error';
     console.error('Error updating inquiry:', error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

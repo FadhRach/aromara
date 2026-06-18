@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { loginWithEmail } from '@/lib/auth'
 import { showAlert } from '@/lib/sweetalert'
 import IonIcon from '@/components/shared/IonIcon'
 
@@ -33,25 +32,20 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const result = await loginWithEmail(email, password)
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      const result = await res.json()
 
       if (result.success && result.data) {
-        // Store in localStorage
         localStorage.setItem('user', JSON.stringify(result.data))
-        
-        // Set cookie via API route
-        await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(result.data),
-        })
-        
         showAlert.success('Login Berhasil!', `Selamat datang, ${result.data.name}`)
 
-        // Get redirect URL from query params or default based on role
         const urlParams = new URLSearchParams(window.location.search)
         const redirect = urlParams.get('redirect')
-        
+
         setTimeout(() => {
           if (redirect) {
             router.push(redirect)

@@ -11,6 +11,16 @@ interface DashboardStats {
   responseRate: number;
 }
 
+interface RecentInquiry {
+  id: string;
+  subject: string;
+  created_at: string;
+  status: string;
+  buyer?: {
+    name: string;
+  };
+}
+
 export default function SupplierDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
@@ -19,15 +29,16 @@ export default function SupplierDashboard() {
     responseRate: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [supplierData, setSupplierData] = useState<any>(null);
+  const [supplierData, setSupplierData] = useState<{ id: string; name: string } | null>(null);
+  const [recentInquiries, setRecentInquiries] = useState<RecentInquiry[]>([]);
 
   useEffect(() => {
-    // Get supplier data from localStorage
     const userData = localStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
       setSupplierData(user);
       fetchStats(user.id);
+      fetchRecentInquiries(user.id);
     }
   }, []);
 
@@ -35,7 +46,6 @@ export default function SupplierDashboard() {
     try {
       const response = await fetch(`/api/supplier/stats?supplier_id=${supplierId}`);
       const result = await response.json();
-      
       if (result.success) {
         setStats(result.data);
       }
@@ -44,6 +54,27 @@ export default function SupplierDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchRecentInquiries = async (supplierId: string) => {
+    try {
+      const response = await fetch(`/api/supplier/inquiries?supplier_id=${supplierId}`);
+      const result = await response.json();
+      if (result.success) {
+        setRecentInquiries((result.data || []).slice(0, 5));
+      }
+    } catch (error) {
+      console.error('Error fetching recent inquiries:', error);
+    }
+  };
+
+  const formatRelativeTime = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 60) return `${minutes} menit lalu`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} jam lalu`;
+    return `${Math.floor(hours / 24)} hari lalu`;
   };
 
   const statCards = [
@@ -163,39 +194,41 @@ export default function SupplierDashboard() {
 
       {/* Recent Activity */}
       <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
-        <div className="space-y-4">
-          {/* Activity items - TODO: Replace with real data */}
-          <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
-            <div className="bg-green-100 p-2 rounded-lg">
-              <IonIcon name="checkmark-circle" className="text-xl text-green-600" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">New inquiry received</p>
-              <p className="text-sm text-gray-600">John Doe inquired about Lavender Oil - 2 hours ago</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <IonIcon name="cube" className="text-xl text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">Product updated</p>
-              <p className="text-sm text-gray-600">Peppermint Oil stock updated - 5 hours ago</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
-            <div className="bg-yellow-100 p-2 rounded-lg">
-              <IonIcon name="star" className="text-xl text-yellow-600" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">Profile viewed</p>
-              <p className="text-sm text-gray-600">Your profile was viewed 15 times today</p>
-            </div>
-          </div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">Inquiry Terbaru</h2>
+          <Link href="/supplier/inquiries" className="text-sm text-green-600 hover:underline">
+            Lihat semua
+          </Link>
         </div>
+        {recentInquiries.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-8">Belum ada inquiry masuk.</p>
+        ) : (
+          <div className="space-y-3">
+            {recentInquiries.map(inquiry => (
+              <div key={inquiry.id} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
+                <div className="bg-green-100 p-2 rounded-lg flex-shrink-0">
+                  <IonIcon name="mail-outline" className="text-xl text-green-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 truncate">
+                    {inquiry.subject || `Inquiry dari ${inquiry.buyer?.name || 'Buyer'}`}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {inquiry.buyer?.name || 'Unknown'} &middot; {formatRelativeTime(inquiry.created_at)}
+                  </p>
+                </div>
+                <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${
+                  inquiry.status === 'open' ? 'bg-yellow-100 text-yellow-700' :
+                  inquiry.status === 'negotiating' ? 'bg-blue-100 text-blue-700' :
+                  inquiry.status === 'ordered' ? 'bg-green-100 text-green-700' :
+                  'bg-gray-100 text-gray-600'
+                }`}>
+                  {inquiry.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

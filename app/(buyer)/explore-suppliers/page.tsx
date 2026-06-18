@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -28,11 +27,14 @@ export default function ExploreSuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [filteredSuppliers, setFilteredSuppliers] = useState<Supplier[]>([]);
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
-  // Fetch suppliers
+  // Read search query from URL on mount
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) setSearchQuery(q);
     fetchSuppliers();
   }, []);
 
@@ -86,33 +88,34 @@ export default function ExploreSuppliersPage() {
     }
   };
 
-  // Filter suppliers based on filters
+  // Filter suppliers based on region and search query
   useEffect(() => {
     let filtered = [...suppliers];
 
-    // Region filter
     if (selectedRegion !== "all") {
-      filtered = filtered.filter((supplier) => supplier.province === selectedRegion);
+      filtered = filtered.filter(s => s.province === selectedRegion);
     }
 
-    // Type filter (if needed in future)
-    if (selectedTypes.length > 0) {
-      // Add type filtering logic here when supplier types are in database
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        s => s.name.toLowerCase().includes(q) ||
+          s.company_description?.toLowerCase().includes(q) ||
+          s.city?.toLowerCase().includes(q)
+      );
     }
 
     setFilteredSuppliers(filtered);
-  }, [selectedRegion, selectedTypes, suppliers]);
+  }, [selectedRegion, searchQuery, suppliers]);
 
-  const handleTypeToggle = (type: string) => {
-    setSelectedTypes(prev => 
-      prev.includes(type) 
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
-    );
-  };
-
-  // Get unique regions
-  const regions = Array.from(new Set(suppliers.map(s => s.province))).filter(Boolean);
+  // Unique regions with supplier counts from real data
+  const regionCounts = suppliers.reduce<Record<string, number>>((acc, s) => {
+    if (s.province) acc[s.province] = (acc[s.province] || 0) + 1;
+    return acc;
+  }, {});
+  const regions = Object.keys(regionCounts).sort(
+    (a, b) => regionCounts[b] - regionCounts[a]
+  );
 
   return (
     <div className="min-h-screen bg-[#FAFAEE] pt-32 md:pt-36 pb-16">
@@ -163,94 +166,53 @@ export default function ExploreSuppliersPage() {
                       </div>
                       <span className="text-xs text-[#252F24] group-hover:text-[#252F24] font-medium">Semua Wilayah</span>
                     </label>
-                    {regions.slice(0, 5).map((region) => (
-                      <label key={region} className="flex items-center gap-2 p-1 hover:bg-[#252F24]/5 rounded-md cursor-pointer transition group">
-                        <div className="relative flex items-center">
-                          <input
-                            type="radio"
-                            name="region"
-                            checked={selectedRegion === region}
-                            onChange={() => setSelectedRegion(region)}
-                            className="sr-only peer"
-                          />
-                          <div className="w-3.5 h-3.5 border-2 border-[#252F24]/40 rounded-full peer-checked:border-[#252F24] peer-checked:bg-[#252F24] transition flex items-center justify-center">
-                            {selectedRegion === region && (
-                              <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                            )}
+                    {regions.slice(0, 8).map((region) => (
+                      <label key={region} className="flex items-center justify-between gap-2 p-1 hover:bg-[#252F24]/5 rounded-md cursor-pointer transition group">
+                        <div className="flex items-center gap-2">
+                          <div className="relative flex items-center">
+                            <input
+                              type="radio"
+                              name="region"
+                              checked={selectedRegion === region}
+                              onChange={() => setSelectedRegion(region)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-3.5 h-3.5 border-2 border-[#252F24]/40 rounded-full peer-checked:border-[#252F24] peer-checked:bg-[#252F24] transition flex items-center justify-center">
+                              {selectedRegion === region && (
+                                <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                              )}
+                            </div>
                           </div>
+                          <span className="text-xs text-[#252F24] group-hover:text-[#252F24]">{region}</span>
                         </div>
-                        <span className="text-xs text-[#252F24] group-hover:text-[#252F24]">{region}</span>
+                        <span className="text-xs text-[#252F24]/50">({regionCounts[region]})</span>
                       </label>
                     ))}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Pemasok Terdekat Filter Card */}
+              {/* Search Card */}
               <Card className="bg-[#E1F0C9] border-none shadow-sm rounded-lg">
                 <CardContent className="p-2">
-                  <h3 className="font-semibold text-[#252F24] mb-1.5 text-sm">Pemasok Terdekat</h3>
-                  <div className="space-y-0.5">
-                    {['Jawa Barat (17)', 'DKI Jakarta (10)', 'Jawa Tengah (6)', 'Sumatra Barat (5)', 'Aceh (4)'].map((type) => (
-                      <label key={type} className="flex items-center gap-2 p-1 hover:bg-[#252F24]/5 rounded-md cursor-pointer transition group">
-                        <div className="relative flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedTypes.includes(type)}
-                            onChange={() => handleTypeToggle(type)}
-                            className="sr-only peer"
-                          />
-                          <div className="w-3.5 h-3.5 border-2 border-[#252F24]/40 rounded peer-checked:border-[#252F24] peer-checked:bg-[#252F24] transition flex items-center justify-center">
-                            {selectedTypes.includes(type) && (
-                              <svg className="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                          </div>
-                        </div>
-                        <span className="text-xs text-[#252F24] group-hover:text-[#252F24]">{type}</span>
-                      </label>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Tipe Pemasok Filter Card */}
-              <Card className="bg-[#E1F0C9] border-none shadow-sm rounded-lg">
-                <CardContent className="p-2">
-                  <h3 className="font-semibold text-[#252F24] mb-1.5 text-sm">Tipe Pemasok</h3>
-                  <div className="space-y-0.5">
-                    {['Produsen Minyak Atsiri', 'Produksi Fragrance', 'Supplier Packaging', 'Laboratorium/Sertifikasi'].map((type) => (
-                      <label key={type} className="flex items-center gap-2 p-1 hover:bg-[#252F24]/5 rounded-md cursor-pointer transition group">
-                        <div className="relative flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedTypes.includes(type)}
-                            onChange={() => handleTypeToggle(type)}
-                            className="sr-only peer"
-                          />
-                          <div className="w-3.5 h-3.5 border-2 border-[#252F24]/40 rounded peer-checked:border-[#252F24] peer-checked:bg-[#252F24] transition flex items-center justify-center">
-                            {selectedTypes.includes(type) && (
-                              <svg className="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                          </div>
-                        </div>
-                        <span className="text-xs text-[#252F24] group-hover:text-[#252F24]">{type}</span>
-                      </label>
-                    ))}
-                  </div>
+                  <h3 className="font-semibold text-[#252F24] mb-1.5 text-sm">Cari Supplier</h3>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Nama, kota, deskripsi..."
+                    className="w-full px-3 py-1.5 text-xs bg-white border border-[#252F24]/20 rounded-md focus:outline-none focus:ring-1 focus:ring-[#252F24]/30"
+                  />
                 </CardContent>
               </Card>
 
               {/* Reset Button */}
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full border-[#252F24]/30 hover:bg-[#252F24]/5 text-[#252F24] text-xs h-8 rounded-lg font-medium"
                 onClick={() => {
                   setSelectedRegion("all");
-                  setSelectedTypes([]);
+                  setSearchQuery("");
                 }}
               >
                 Reset
@@ -334,59 +296,6 @@ export default function ExploreSuppliersPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                               </svg>
                               <span className="text-[#252F24]/80 text-xs">Pengiriman: {supplier.shipping_coverage}</span>
-                            </div>
-                          </div>
-
-                          {/* Kenangan Produk Section */}
-                          <div className="mb-2">
-                            <h4 className="text-xs font-semibold text-[#252F24]/70 mb-1.5">Kecocokan Produk</h4>
-                            <div className="flex flex-wrap gap-1.5">
-                              <Badge variant="outline" className="bg-white text-[#252F24] border-[#252F24]/20 text-xs px-2 py-0.5 h-auto rounded-md font-medium">
-                                Lavender Oil (French)
-                              </Badge>
-                              <Badge variant="outline" className="bg-white text-[#252F24] border-[#252F24]/20 text-xs px-2 py-0.5 h-auto rounded-md font-medium">
-                                Lemongrass Oil (Surin)
-                              </Badge>
-                              <Badge variant="outline" className="bg-white text-[#252F24] border-[#252F24]/20 text-xs px-2 py-0.5 h-auto rounded-md font-medium">
-                                Peppermint Oil Organic
-                              </Badge>
-                              <Badge variant="outline" className="bg-white text-[#252F24] border-[#252F24]/20 text-xs px-2 py-0.5 h-auto rounded-md font-medium">
-                                Ekstrak Rosemary Grade AA
-                              </Badge>
-                              <Badge variant="outline" className="bg-white text-[#252F24] border-[#252F24]/20 text-xs px-2 py-0.5 h-auto rounded-md font-medium">
-                                Bergamot FCF Oil
-                              </Badge>
-                              <Badge variant="outline" className="bg-white text-[#252F24] border-[#252F24]/20 text-xs px-2 py-0.5 h-auto rounded-md font-medium">
-                                Jasmine Absolute Blend
-                              </Badge>
-                            </div>
-                          </div>
-
-                          {/* Stats Section */}
-                          <div className="bg-white/60 rounded-lg p-2.5 mb-3 border border-[#252F24]/10">
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="flex items-start gap-2">
-                                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0">
-                                  <svg className="w-3.5 h-3.5 text-[#252F24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-[#252F24]/60 mb-0.5">Waktu respons rata-rata</p>
-                                  <p className="font-semibold text-[#252F24] text-xs">Kurang dari 24 Jam</p>
-                                </div>
-                              </div>
-                              <div className="flex items-start gap-2">
-                                <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                  <svg className="w-3.5 h-3.5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-                                  </svg>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-[#252F24]/60 mb-0.5">Tingkat respons rata-rata</p>
-                                  <p className="font-semibold text-[#252F24] text-xs">84%</p>
-                                </div>
-                              </div>
                             </div>
                           </div>
 

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { registerCompany } from '@/lib/auth'
 import { showAlert } from '@/lib/sweetalert'
 import IonIcon from '@/components/shared/IonIcon'
 
@@ -53,26 +52,22 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const result = await registerCompany({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        phone: formData.phone || undefined,
-        address: formData.address || undefined,
-        role: formData.role,
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone || undefined,
+          address: formData.address || undefined,
+          role: formData.role,
+        }),
       })
+      const result = await res.json()
 
       if (result.success && result.data) {
-        // Auto login after registration
         localStorage.setItem('user', JSON.stringify(result.data))
-        
-        // Set cookie
-        await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(result.data),
-        })
-        
         showAlert.success('Pendaftaran Berhasil!', `Selamat datang, ${result.data.name}`)
           .then(() => {
             if (result.data.role === 'buyer') {

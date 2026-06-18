@@ -161,8 +161,8 @@ export default function ProductDetailPage() {
                   />
                 </div>
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-6xl">🌿</span>
+                <div className="w-full h-full flex items-center justify-center bg-[#E1F0C9]">
+                  <span className="text-4xl font-bold text-[#252F24]/20">{product.name.charAt(0)}</span>
                 </div>
               )}
             </div>
@@ -189,15 +189,6 @@ export default function ProductDetailPage() {
               ))}
             </div>
 
-            {/* Video */}
-            {product.product_video_url && (
-              <div className="mt-4">
-                <h3 className="font-semibold text-[#252F24] mb-2">Video Produk</h3>
-                <div className="aspect-video bg-white rounded-lg flex items-center justify-center">
-                  <span className="text-6xl">▶️</span>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Right - Product Info */}
@@ -231,47 +222,12 @@ export default function ProductDetailPage() {
               {product.description}
             </p>
 
-            {/* Product Features */}
-            <Card className="bg-white border-none mb-6">
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-[#252F24] mb-4">Keunggulan Produk</h3>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="font-semibold text-[#252F24]">100% Murni & Alami</p>
-                    <p className="text-[#252F24]/70">
-                      Diekstraksi dari bunga melati segar dan disuling menggunakan teknik distilasi uap modern untuk menjaga kemurnian, aroma, dan kualitas.
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[#252F24]">Kualitas Terapeutik</p>
-                    <p className="text-[#252F24]/70">
-                      Mengandung senyawa alami seperti Benzyl Acetate, Indole, dan Linalool yang terkenal dengan efek menenangkan, meningkatkan mood, dan merawat kulit.
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[#252F24]">Aplikasi Serbaguna</p>
-                    <p className="text-[#252F24]/70">
-                      Aromaterapi: Cocok untuk melelengkan kulit terasa dan relaksasi, meresapi aura sensasi halus yang memperbaiki karakter parfum berkualitas.
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[#252F24]">Diproduksi Secara Berkelanjutan</p>
-                    <p className="text-[#252F24]/70">
-                      Dioleh dengan tanaman dan bunga melati secara dari luas tanaman terbiasa bersama kelanjutan lingkaran produksi berkelas kecil untuk menjaga kualitas serta menganungi iptak
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Ingredients/Composition */}
             {ingredients.length > 0 && (
               <Card className="bg-white border-none mb-6">
                 <CardContent className="p-6">
-                  <h3 className="font-semibold text-[#252F24] mb-4">Kemasan Premium</h3>
-                  <p className="text-sm text-[#252F24]/80 mb-3">
-                    Dikemas dalam botol kaca 10 ML dengan tutup tetes yang aman dan travel packaging untuk menjaga kualitas dan kesegaran aroma.
-                  </p>
+                  <h3 className="font-semibold text-[#252F24] mb-4">Komposisi Bahan</h3>
                   <ul className="space-y-2 text-sm">
                     {ingredients.map((ingredient) => (
                       <li key={ingredient.id} className="flex items-start gap-2">

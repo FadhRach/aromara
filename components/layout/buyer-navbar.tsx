@@ -38,8 +38,11 @@ export default function BuyerNavbar() {
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Implement search functionality
-        console.log('Search:', searchQuery);
+        if (!searchQuery.trim()) return;
+        setShowSearch(false);
+        setMobileMenuOpen(false);
+        router.push(`/explore-suppliers?q=${encodeURIComponent(searchQuery.trim())}`);
+        setSearchQuery('');
     };
 
     return (
